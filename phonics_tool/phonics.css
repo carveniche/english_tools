@@ -1,0 +1,11 @@
+.myGrid {
+  display: grid;
+  gap: 1.5rem; /* gap-6 */
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1030px) {
+  .myGrid {
+    grid-template-columns: repeat(3, 1fr); /* lg:grid-cols-3 */
+  }
+}
