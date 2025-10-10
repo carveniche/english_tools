@@ -1,18 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import initial from "../json/lettterLettersound.json";
-import Digraphs from "../json/lettterLettersound.json";
-import Blend from "../json/lettterLettersound.json";
-import Long from "../json/lettterLettersound.json";
-import Short from "../json/lettterLettersound.json";
-import Other from "../json/lettterLettersound.json";
-import SingleEnd from "../json/lettterLettersound.json";
-import DoubleEnd from "../json/lettterLettersound.json";
-import BlendEnd from "../json/lettterLettersound.json";
+import initial from "./json/lettterLettersound.json";
+import Digraphs from "./json/lettterLettersound.json";
+import Blend from "./json/lettterLettersound.json";
+import Long from "./json/lettterLettersound.json";
+import Short from "./json/lettterLettersound.json";
+import Other from "./json/lettterLettersound.json";
+import SingleEnd from "./json/lettterLettersound.json";
+import DoubleEnd from "./json/lettterLettersound.json";
+import BlendEnd from "./json/lettterLettersound.json";
 // import Priority from "../json/lettterLettersound.json";
 // import Draggable, { DraggableEvent, DraggableData } from 'react-draggable';
 // import opentype from 'opentype.js';
-import  "../component/phonics.css";
-import '../index.css';
+import  "./phonics.css";
+import '../../index.css';
 type SingleItem = {
   id: string;
   lab: string;
@@ -691,14 +691,17 @@ function tokenizeWord(word: string) {
 const Dot = ({x,y,key}:any) => (
   <div style={{left:x, top:y}} className="absolute w-[5px] h-[5px] bg-black rounded-full" />
 );
-
+interface Dot {
+  x: number;
+  y: number;
+}
 function SentenceDecoder({ input, onTokenClick, onWordClick }: {
   input: string;
   onTokenClick: (token: string) => void;
   onWordClick: (word: string) => void;
 }) {
   const containerRef = useRef(null);
-  const [dots, setDots] = useState([]);
+  const [dots, setDots] = useState<Dot[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const words = useMemo(() => input.trim().split(/\s+/).filter(Boolean), [input]);
 
@@ -894,7 +897,7 @@ function SentenceDecoder({ input, onTokenClick, onWordClick }: {
 
   // Update dots for token positions
   useEffect(() => {
-    const c = containerRef.current;
+    const c = containerRef.current as HTMLElement | null;
     if (!c) return;
     const tokenEls = c.querySelectorAll('[data-token]');
     const lineEl = c.querySelector('[data-arrow]');
@@ -1211,7 +1214,7 @@ const cx = stemX;
 
 
 function PathTracer({ letter, isUpper, onProgress }: { letter: string; isUpper: boolean; onProgress: (n: number) => void }) {
-  const svgRef = useRef(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const [progress, setProgress] = useState(0);
   const [segIdx, setSegIdx] = useState(0);
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -1534,6 +1537,11 @@ declare global {
 interface TimeSpentData {
   [key: string]: number;
 }
+interface PickItem {
+  label: string;
+  id: number | string;
+}
+type ToolType = "Blending Board" | "Make the Word" | "Decoding" | "Write the Letter";
 interface Window {
   handlePhonicsBackButton: () => void;
   submitTimeSpent?: (formData: FormData) => void;
@@ -1541,13 +1549,13 @@ interface Window {
   __PHONICS_PLAY__?: (id: string) => void; // Include if needed for other parts of your code
 }
 export default function PhonicsIsFunApp() {
-  const [active, setActive] = useState (null);
-  const [blendSel, setBlendSel] = useState ([]);
-  const [makeA, setMakeA] = useState ([]);
+  const [active, setActive] = useState <ToolType | null>(null);
+  const [blendSel, setBlendSel] = useState<PickItem[]> ([]);
+  const [makeA, setMakeA] = useState<PickItem[]> ([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [hideSoundWallHeader, setHideSoundWallHeader] = useState(false);
   const menuIconRef = useRef (null);
-  function handlePick(label: string, id: string) {
+  function handlePick(label: string, id: number | string) {
     if (active === "Blending Board") {
       setBlendSel((prev:any) => prev.length >= 3 ? prev : [...prev, {label, id}]);
     } else if (active === "Make the Word") {
@@ -1555,8 +1563,8 @@ export default function PhonicsIsFunApp() {
     }
   }
   const [timeSpent, setTimeSpent] = useState ({});
-  const [currentToolStartTime, setCurrentToolStartTime] = useState (null);
-  const [previousTool, setPreviousTool] = useState (null);
+  const [currentToolStartTime, setCurrentToolStartTime] = useState <number | null>(null);
+  const [previousTool, setPreviousTool] = useState<ToolType | null> (null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const sendTimeSpentData = useCallback((toolName: string, seconds: number) => {

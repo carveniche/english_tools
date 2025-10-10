@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import "../css/main.css";
-import Vocabulary from "../component/vocabulary/Vocabulary";
+import React, { useState } from "react";
+import "./css/main.css";
+import Vocabulary from "./vocabulary/Vocabulary.tsx";
 
 
 const ListingPage = () => {
@@ -9,8 +9,6 @@ const ListingPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-
-   
 //   const testData = {
 //     words_data: [
 //       {
@@ -441,7 +439,7 @@ const testData ={
   }
 // toolData
 // testData
-if (testData) {
+if (true) {
   return <Vocabulary toolData={testData} />;
 } else {
   return (

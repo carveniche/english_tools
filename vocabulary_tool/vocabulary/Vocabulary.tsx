@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Globe, Save, X, ChevronDown,LoaderCircle  } from "lucide-react";
+import { Globe, Save, X,LoaderCircle  } from "lucide-react";
 
 // ====================== Types ======================
 export type LevelKey = string;
