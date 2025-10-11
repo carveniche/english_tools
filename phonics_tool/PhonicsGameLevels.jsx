@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
 // --- Helpers ---
 const UPPER = Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 const LOWER = Array.from("abcdefghijklmnopqrstuvwxyz");

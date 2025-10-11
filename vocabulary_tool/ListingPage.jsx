@@ -439,8 +439,8 @@ const testData ={
   }
 // toolData
 // testData
-if (true) {
-  return <Vocabulary toolData={testData} />;
+if (toolData) {
+  return <Vocabulary toolData={toolData} />;
 } else {
   return (
     <p className="text-white text-lg font-semibold text-center p-8 bg-[#0F2A3D] min-h-[82vh] flex items-center justify-center">

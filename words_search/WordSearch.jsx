@@ -196,7 +196,7 @@ export default function WordSearchA1() {
   }, [correctAudio]);
 
   // Initialize puzzle with testDataSet or backend data via window.wordSearchTool
-  // useEffect(() => {
+  useEffect(() => {
   //   setLoading(true);
   //   // For testing, initialize with testDataSet
   //   // setToolData(testDataSet);
@@ -205,87 +205,87 @@ export default function WordSearchA1() {
   //   // setLoading(false);
 
   //   // Production: Set up window.wordSearchTool to receive backend data
-  //   window.wordSearchTool = (data) => {
-  //     console.log("window.wordSearchTool received data:", data);
-  //     if (
-  //       data &&
-  //       data.data_set &&
-  //       Array.isArray(data.data_set) &&
-  //       data.data_set[0] &&
-  //       data.data_set[0].word_list &&
-  //       Array.isArray(data.data_set[0].word_list) &&
-  //       data.data_set[0].word_list[0]?.words?.length > 0
-  //     ) {
-  //       const filteredData = {
-  //         word_list: [
-  //           {
-  //             ...data.data_set[0].word_list[0],
-  //             words: data.data_set[0].word_list[0].words.filter((word) => word.length <= 10),
-  //           }
-  //         ],
-  //       };
-  //       setToolData(filteredData);
-  //       setCurrentSet(filteredData);
-  //       setPuzzle(generatePuzzleFromSet(filteredData.word_list[0].words));
-  //       setLoading(false);
-  //     } else {
-  //       console.error("Invalid toolData structure:", data);
-  //       setToolData(null);
-  //       setCurrentSet(null);
-  //       setPuzzle(null);
-  //       setLoading(false);
-  //     }
-  //   };
-  //   return () => {
-  //     window.wordSearchTool = undefined;
-  //   };
-  // }, []);
+    window.wordSearchTool = (data) => {
+      console.log("window.wordSearchTool received data:", data);
+      if (
+        data &&
+        data.data_set &&
+        Array.isArray(data.data_set) &&
+        data.data_set[0] &&
+        data.data_set[0].word_list &&
+        Array.isArray(data.data_set[0].word_list) &&
+        data.data_set[0].word_list[0]?.words?.length > 0
+      ) {
+        const filteredData = {
+          word_list: [
+            {
+              ...data.data_set[0].word_list[0],
+              words: data.data_set[0].word_list[0].words.filter((word) => word.length <= 10),
+            }
+          ],
+        };
+        setToolData(filteredData);
+        setCurrentSet(filteredData);
+        setPuzzle(generatePuzzleFromSet(filteredData.word_list[0].words));
+        setLoading(false);
+      } else {
+        console.error("Invalid toolData structure:", data);
+        setToolData(null);
+        setCurrentSet(null);
+        setPuzzle(null);
+        setLoading(false);
+      }
+    };
+    return () => {
+      window.wordSearchTool = undefined;
+    };
+  }, []);
   // testing ----
   // Replace your initialization useEffect with this:
-useEffect(() => {
-  setLoading(true);
+// useEffect(() => {
+//   setLoading(true);
   
-  // Set up the callback immediately
-  window.wordSearchTool = (data) => {
-    console.log("Received data:", data);
+//   // Set up the callback immediately
+//   window.wordSearchTool = (data) => {
+//     console.log("Received data:", data);
     
-    // Handle both possible data structures
-    let words = [];
+//     // Handle both possible data structures
+//     let words = [];
     
-    if (data?.data_set?.[0]?.word_list?.[0]?.words) {
-      words = data.data_set[0].word_list[0].words;
-    } else if (data?.word_list?.[0]?.words) {
-      words = data.word_list[0].words;
-    }
+//     if (data?.data_set?.[0]?.word_list?.[0]?.words) {
+//       words = data.data_set[0].word_list[0].words;
+//     } else if (data?.word_list?.[0]?.words) {
+//       words = data.word_list[0].words;
+//     }
     
-    if (words.length > 0) {
-      const filteredData = {
-        word_list: [{
-          data_set_id: 1,
-          words: words.filter(word => word && word.length <= 10)
-        }]
-      };
+//     if (words.length > 0) {
+//       const filteredData = {
+//         word_list: [{
+//           data_set_id: 1,
+//           words: words.filter(word => word && word.length <= 10)
+//         }]
+//       };
       
-      setToolData(filteredData);
-      setCurrentSet(filteredData);
-      setPuzzle(generatePuzzleFromSet(filteredData.word_list[0].words));
-    } else {
-      // Fallback to test data
-      // setToolData(testDataSet);
-      // setCurrentSet(testDataSet);
-      // setPuzzle(generatePuzzleFromSet(testDataSet.word_list[0].words));
-    }
+//       setToolData(filteredData);
+//       setCurrentSet(filteredData);
+//       setPuzzle(generatePuzzleFromSet(filteredData.word_list[0].words));
+//     } else {
+//       // Fallback to test data
+//       // setToolData(testDataSet);
+//       // setCurrentSet(testDataSet);
+//       // setPuzzle(generatePuzzleFromSet(testDataSet.word_list[0].words));
+//     }
     
-    setLoading(false);
-  };
+//     setLoading(false);
+//   };
 
-  // For testing, use test data immediately
-  // window.wordSearchTool(testDataSet);
+//   // For testing, use test data immediately
+//   // window.wordSearchTool(testDataSet);
   
-  return () => {
-    window.wordSearchTool = undefined;
-  };
-}, []);
+//   return () => {
+//     window.wordSearchTool = undefined;
+//   };
+// }, []);
 
   // Update puzzle when level changes
   useEffect(() => {
@@ -352,13 +352,14 @@ useEffect(() => {
   };
 
   // Fetch new words by triggering backend
-  const fetchNewWords =  (data_set_id) => {
+  const fetchNewWords =  (data_set_id,level) => {
     console.log('i caling')
     setLoading(true);
     try {
       console.log('i func caling')
       const formData = new FormData();
       formData.append("data_set_id", data_set_id);
+      formData.append("level", level);
       formData.append("status", "completed");
       console.log("Calling window.wordSearchTool with data_set_id:", data_set_id, "status: completed");
        window.gettingWordSearchData(formData);
@@ -398,9 +399,10 @@ useEffect(() => {
   };
 
   // Submit timespent
-  const submitTimespent = (data_set_id, timespent) => {
+  const submitTimespent = (data_set_id, timespent,level) => {
     const formData = new FormData();
     formData.append("data_set_id", data_set_id);
+    formData.append("level", level);
     formData.append("status", "completed");
     formData.append("timespent", timespent);
     try {
@@ -420,15 +422,15 @@ useEffect(() => {
     }
     setLoading(true);
     setCelebrate(false);
-
+    const level =currentSet.word_list[0].level
     const currentDataSetId = currentSet.word_list[0].data_set_id;
     console.log("handleNextLevel: Submitting timespent for data_set_id:", currentDataSetId);
-    submitTimespent(currentDataSetId, seconds);
+    submitTimespent(currentDataSetId, seconds,level);
 
     console.log("handleNextLevel: Fetching new words for data_set_id:", currentDataSetId);
     // const newData = await fetchNewWords(currentDataSetId);
     // fetchNewWords(currentDataSetId);
-    const newData = await fetchNewWords(currentDataSetId);
+    const newData = await fetchNewWords(currentDataSetId,level);
 
     console.log("handleNextLevel: Received newData:", newData);
     if (newData) {
