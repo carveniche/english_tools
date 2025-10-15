@@ -173,7 +173,7 @@ function playPhoneme(
     try {
       (window as any).__PHONICS_PLAY__(id);
       return Promise.resolve();
-    } catch {}
+    } catch { }
   }
   return speakTTS(fallbackPronunciation, { rate: 0.65, cancel: true });
 }
@@ -189,7 +189,7 @@ function speakWord(
     try {
       (window as any).__PHONICS_PLAY__(`WORD:${word}`);
       return Promise.resolve();
-    } catch {}
+    } catch { }
   }
   return speakTTS(word, { rate: 0.9, cancel });
 }
@@ -314,7 +314,7 @@ function SoundButton({
   onPick?: (label: string, id: string) => void;
   isTogglevalue: boolean;
   role_name: string;
-  isLiveClass: string;
+  isLiveClass: boolean;
   setButtonData: React.Dispatch<React.SetStateAction<ButtonData>>;
   key: any;
 }) {
@@ -328,7 +328,7 @@ function SoundButton({
           return;
         }
         console.log(isLiveClass, "isLiveClass");
-        if (isLiveClass === "true") {
+        if (isLiveClass === true) {
           console.log("data track");
           datatrackHandler(label, id, speakText, audio, setButtonData);
         }
@@ -354,7 +354,7 @@ function SoundWall({
   onPick: (label: string, id: string) => void;
   isTogglevalue: boolean;
   role_name: string;
-  isLiveClass: string;
+  isLiveClass: boolean;
   setButtonData: any;
 }) {
   return (
@@ -548,7 +548,8 @@ function SoundWall({
 // ---------- Blending Board ----------
 type Picked = { label: string; id: string };
 
-const BlendingBoard = ({ selection, onClear, onBlend }: any) => {
+const BlendingBoard = ({ selection, onClear, onBlend,handleClearButtonLiveClass,isClearButtonLiveClass,isLiveClass, role_name , handleClearButtonStudetnLiveClass,handleBlendAndListenButton,
+  handleBlendAndListenButtonStudent,isblendlistenButtonLiveClass}: any) => {
   const [display, setDisplay] = useState("");
   const [isBlending, setIsBlending] = useState(false);
   const abortControllerRef = useRef(new AbortController());
@@ -562,7 +563,7 @@ const BlendingBoard = ({ selection, onClear, onBlend }: any) => {
     };
   }, [selection]);
 
-  const handleBlend = async () => {
+  const handleBlendFunction = async () => {
     if (isBlending) return;
     setIsBlending(true);
     try {
@@ -574,15 +575,41 @@ const BlendingBoard = ({ selection, onClear, onBlend }: any) => {
     } finally {
       setIsBlending(false);
     }
+
+  }
+
+  useEffect(() => {
+    if(isLiveClass === true && role_name !== "tutor"){
+      handleBlendFunction()
+      handleBlendAndListenButtonStudent()
+    }
+  },[isblendlistenButtonLiveClass === true])
+
+  const handleBlend = async () => {
+    handleBlendFunction();
+    handleBlendAndListenButton()
   };
 
-  const handleClear = () => {
+  const handleClearfunction = () => {
     stopAllAudio(); // Stop all audio
     abortControllerRef.current.abort(); // Abort ongoing blending
     abortControllerRef.current = new AbortController(); // Create new controller
     setIsBlending(false); // Re-enable tick button
     setDisplay(""); // Clear display
     onClear(); // Clear selection
+  }
+
+  useEffect(() => {
+    if(isLiveClass === true && role_name !== "tutor"){
+      handleClearButtonStudetnLiveClass()
+      handleClearfunction()
+    }
+  },[isClearButtonLiveClass === true])
+
+
+  const handleClear = () => {
+    handleClearfunction();
+    handleClearButtonLiveClass()
   };
 
   return (
@@ -592,22 +619,21 @@ const BlendingBoard = ({ selection, onClear, onBlend }: any) => {
           <Pill
             key={i}
             index={i}
-            className={`min-w-[52px] text-center ${
-              selection[i]
-                ? "bg-blue-500 text-white"
-                : "bg-slate-200 text-slate-500"
-            }`}
+            className={`min-w-[52px] text-center ${selection[i]
+              ? "bg-blue-500 text-white"
+              : "bg-slate-200 text-slate-500"
+              }`}
           >
             {selection[i]?.label ?? "?"}
           </Pill>
         ))}
+        { isLiveClass === true && role_name === "tutor" && (<>
         <span className="text-2xl font-extrabold text-slate-700">=</span>
         <button
-          className={`w-12 h-12 rounded-full text-white text-2xl shadow-lg ${
-            isBlending
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-green-600 hover:bg-green-700"
-          }`}
+          className={`w-12 h-12 rounded-full text-white text-2xl shadow-lg ${isBlending
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-green-600 hover:bg-green-700"
+            }`}
           onClick={handleBlend}
           title="Blend (play sounds then whole word)"
           disabled={isBlending}
@@ -620,6 +646,7 @@ const BlendingBoard = ({ selection, onClear, onBlend }: any) => {
         >
           Clear
         </button>
+        </>)}
       </div>
       <p className="text-center mt-3 font-bold text-slate-700 min-h-[1.5rem]">
         {display}
@@ -1010,7 +1037,11 @@ function getAudioUrlForPhoneme(phonemeId: string): string | undefined {
   return undefined;
 }
 
-const MakeTheWord = ({ tiles, onClear }: any) => {
+const MakeTheWord = ({ tiles, onClear,handlemakewordlisteningbutton ,listenWord,role_name,isLiveClass,
+  handlemakeThewordpreviousbuttonStudent,handlemakeThewordpreviousbutton,isPreviousButton,handleWriteThewordListenButton,
+  isWriteTheWordListen,handleWriteThewordListenButtonStudent,isWriteTheWordClear, handleWriteTheWordClearButtonStudent, handleWriteTheWordClearButton,
+  handleDeleteWordMakeTheWord,
+}: any) => {
   const [category, setCategory] = useState("satpin");
   const [result, setResult] = useState("");
   const [isBlending, setIsBlending] = useState(false); // Track blending state
@@ -1028,18 +1059,50 @@ const MakeTheWord = ({ tiles, onClear }: any) => {
     };
   }, [tiles]);
 
+
+  useEffect(() => {
+    if (isLiveClass === true && role_name !== "tutor" && listenWord !=="") {
+      console.log(listenWord, "listenWord student");
+      const speakWord = async () => {
+        setGettingprevword(listenWord);
+        await speakTTS(listenWord, { rate: 0.9, cancel: true });
+        handleDeleteWordMakeTheWord();
+      };
+      speakWord();
+    }
+  }, [listenWord]);
+
   async function onListen(): Promise<void> {
     const list = CATEGORY_WORDS[category] || [];
     if (!list.length) return;
     const word = list[Math.floor(Math.random() * list.length)];
     setGettingprevword(word);
     console.log(word, "wordssss");
+    if (isLiveClass === true && role_name === "tutor") {
+      handlemakewordlisteningbutton(word);
+    }
     await speakTTS(word, { rate: 0.9, cancel: true });
   }
+  useEffect(() => {
+    if (isLiveClass === true && role_name !== "tutor" && isPreviousButton === true) {
+      const speakWord = async () => {
+        console.log(gettingPrevword, "gettingPrevword student");
+        await speakTTS(gettingPrevword, { rate: 0.9, cancel: true });
+        handlemakeThewordpreviousbuttonStudent();
+      };
+      speakWord();
+    }
+  }, [isPreviousButton]);
+
+
   async function onPrev(): Promise<void> {
+    if (isLiveClass === true && role_name === "tutor") {
+      handlemakeThewordpreviousbutton();
+    }
     await speakTTS(gettingPrevword, { rate: 0.9, cancel: true });
   }
   async function onBlendClick(): Promise<void> {
+    console.log("hrr")
     if (isBlending) return; // Prevent clicks during blending
     if (tiles.length < 2) {
       setResult("Pick at least 2 sounds");
@@ -1143,14 +1206,49 @@ const MakeTheWord = ({ tiles, onClear }: any) => {
     }
   }
 
-  const handleClear = () => {
+  const handlerClearFunction = () => {
     stopAllAudio(); // Stop all audio
     abortControllerRef.current.abort(); // Abort ongoing blending
     abortControllerRef.current = new AbortController(); // Create new controller
     setIsBlending(false); // Re-enable tick button
     setResult(""); // Clear result
     onClear(); // Clear tiles
+  }
+
+  useEffect(() => {
+    if (isLiveClass === true && role_name !== "tutor") {
+      handlerClearFunction()
+      handleWriteTheWordClearButtonStudent()
+    }
+  }, [isWriteTheWordClear === true]);
+
+
+
+
+  const handleClear = () => {
+    handlerClearFunction();
+    if(isLiveClass === true && role_name === "tutor"){
+      handleWriteTheWordClearButton();
+    }
   };
+
+  const handleonBlendClick = async () => {
+    if(isLiveClass === true && role_name === "tutor"){
+      handleWriteThewordListenButton()
+    }
+    await onBlendClick();
+  }
+
+  useEffect(()=>{
+    if (isLiveClass === true && role_name !== "tutor") {
+      const speakWordWriteTheWord = async () => {
+        handleWriteThewordListenButtonStudent()
+        await onBlendClick();
+      };
+      speakWordWriteTheWord();
+    }
+  },[isWriteTheWordListen === true])
+
 
   return (
     <div className="bg-white/80 rounded-2xl border-4 border-indigo-200 p-5">
@@ -1159,6 +1257,7 @@ const MakeTheWord = ({ tiles, onClear }: any) => {
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
+          disabled={(isLiveClass === true && role_name === "tutor") ? false : true}
           className="px-3 py-2 rounded-lg border-2 border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-sm"
         >
           {CATEGORY_OPTIONS.map((opt) => (
@@ -1168,13 +1267,13 @@ const MakeTheWord = ({ tiles, onClear }: any) => {
           ))}
         </select>
 
-        <button
-          onClick={onListen}
+       { (isLiveClass === true && role_name === "tutor") &&(<button
+          onClick={()=>onListen()}
           className="px-3 py-2 rounded-lg bg-emerald-600 text-white font-bold shadow"
         >
           🔊 Listen
-        </button>
-        {gettingPrevword && (
+        </button>)}
+        { (isLiveClass === true && role_name === "tutor") && gettingPrevword && (
           <button
             onClick={onPrev}
             className="px-3 py-2 rounded-lg bg-emerald-600 text-white font-bold shadow"
@@ -1198,25 +1297,25 @@ const MakeTheWord = ({ tiles, onClear }: any) => {
             </Pill>
           ))}
         </div>
-
+        { (isLiveClass === true && role_name === "tutor") &&( <>
         <button
-          onClick={onBlendClick}
+          onClick={handleonBlendClick}
           title="Blend sounds and read the word"
-          className={`w-10 h-10 rounded-full text-white text-xl font-black shadow ${
-            isBlending
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-green-600 hover:bg-green-700"
-          }`}
+          className={`w-10 h-10 rounded-full text-white text-xl font-black shadow ${isBlending
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-green-600 hover:bg-green-700"
+            }`}
           disabled={isBlending}
         >
           ✓
         </button>
         <button
-          onClick={handleClear}
+          onClick={()=>handleClear()}
           className="ml-1 px-3 py-2 rounded-md bg-red-500 text-white text-xs font-bold"
         >
           Clear
         </button>
+        </>)}
       </div>
       {result && (
         <div className="mt-2 text-slate-700">
@@ -1744,6 +1843,7 @@ function SentenceDecoder({
         const tokenEls = Array.from(
           wordEl.querySelectorAll<HTMLElement>("[data-token]")
         );
+        console.log(tokenEls,"tokenEls 1")
         for (let i = 0; i < letters.length; i++) {
           if (tokenEls[i]) tokenEls[i].classList.add("bg-yellow-200");
           await speakTTS(letters[i], { rate: 0.8 });
@@ -1753,6 +1853,7 @@ function SentenceDecoder({
         const tokenEls = Array.from(
           wordEl.querySelectorAll<HTMLElement>("[data-token]")
         );
+        console.log(tokenEls[0],"tokenEls 2")
         const tokens = tokenEls.map((el) => el.textContent || "");
         console.log(`Tokens for '${wordText}':`, tokens);
         for (let i = 0; i < tokens.length; i++) {
@@ -1778,36 +1879,40 @@ function SentenceDecoder({
           return (
             <span
               key={i}
-              className={`inline-flex items-end mr-3 cursor-pointer ${
-                isPlaying ? "pointer-events-none cursor-not-allowed" : ""
-              }`}
+              className={`inline-flex items-end mr-3 cursor-pointer ${isPlaying ? "pointer-events-none cursor-not-allowed" : ""
+                }`}
               data-word
               onClick={(e) => {
                 if (isPlaying) return;
+                console.log("word clicked 1",e.currentTarget);
                 playWordSequence(e.currentTarget as HTMLElement);
               }}
             >
               {isLetterSpellingWord
                 ? w.split("").map((letter: any, j: any) => (
-                    <span
-                      key={j}
-                      data-token
-                      className="inline-block px-0.5 py-0.5 transition bg-transparent hover:bg-yellow-200 rounded"
-                      onClick={() => onTokenClick(letter)}
-                    >
-                      {letter}
-                    </span>
-                  ))
+                  <span
+                    key={j}
+                    data-token
+                    className="inline-block px-0.5 py-0.5 transition bg-transparent hover:bg-yellow-200 rounded"
+                    onClick={() => {
+                      console.log("word clicked 2");
+                      onTokenClick(letter)}}
+                  >
+                    {letter}
+                  </span>
+                ))
                 : tokenizeWord(w).map((t, j) => (
-                    <span
-                      key={j}
-                      data-token
-                      className="inline-block px-0.5 py-0.5 transition bg-transparent hover:bg-yellow-200 rounded"
-                      onClick={() => onTokenClick(t)}
-                    >
-                      {t}
-                    </span>
-                  ))}
+                  <span
+                    key={j}
+                    data-token
+                    className="inline-block px-0.5 py-0.5 transition bg-transparent hover:bg-yellow-200 rounded"
+                    onClick={() => {
+                      console.log("word clicked 3");
+                      onTokenClick(t)}}
+                  >
+                    {t}
+                  </span>
+                ))}
             </span>
           );
         })}
@@ -1823,7 +1928,7 @@ function SentenceDecoder({
 }
 
 // Decoding Component
-function Decoding() {
+function Decoding({handleDecodingTextChange,role_name,decodingText,isLiveClass,deleteHandlerDecodingText}:any) {
   const [text, setText] = useState("");
   const [show, setShow] = useState("");
   const [warning, setWarning] = useState("");
@@ -1913,12 +2018,39 @@ function Decoding() {
     }
   };
 
+  const onSubmitHandler= ()=>{
+    if (text.length <= maxLength) {
+      setShow(text)
+      handleDecodingTextChange(text)
+    }
+  }
+
+  useEffect(() => {
+   
+      setText(decodingText)
+      setShow(decodingText)
+   
+      
+    
+  }, [decodingText]);
+
+  useEffect(() => {
+   
+    return () => {
+     if(role_name !== "tutor" && isLiveClass === true){
+      deleteHandlerDecodingText()
+    };
+  }
+  }, []);
+
+
+
   return (
     <div className="bg-white rounded-2xl border-4 border-teal-300 p-5 relative">
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          if (text.length <= maxLength) setShow(text);
+         onSubmitHandler()
         }}
         className="flex gap-2 mb-4"
       >
@@ -1928,13 +2060,19 @@ function Decoding() {
           placeholder="Type a word or short sentence and press Enter"
           className="mt-[1.5rem] flex-1 px-3 py-2 rounded-lg border-2 border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-400 text-lg"
           maxLength={maxLength + 1}
+          readOnly={role_name !== "tutor"}
+          onKeyDown={(e) => {
+            if (role_name !== "tutor" && e.key === "Enter") {
+              e.preventDefault(); // prevent enter key for students
+            }
+          }}
         />
-        <button
+        { (role_name === "tutor") && (<button
           className="px-4 py-2 rounded-lg bg-teal-500 text-white font-bold absolute top-0 right-0"
           disabled={text.length > maxLength}
         >
           Show
-        </button>
+        </button>)}
       </form>
       {warning && <p className="text-red-500 text-sm mb-2">{warning}</p>}
       {show && text.length <= maxLength && (
@@ -2302,9 +2440,9 @@ function PathTracer({
             .reduce((a: any, p: any) => a + getSegLen(p), 0);
           const local = isCurrent
             ? Math.max(
-                0,
-                Math.min(1, (progress * total - prev) / getSegLen(pts))
-              )
+              0,
+              Math.min(1, (progress * total - prev) / getSegLen(pts))
+            )
             : 1;
           const steps = 150;
           const drawn: any[] = [];
@@ -2407,9 +2545,8 @@ function WriteLetter() {
 
   return (
     <div
-      className={`relative rounded-2xl border-4 border-blue-300 p-5 handwriting ${
-        done ? "bg-green-400" : "bg-white"
-      }`}
+      className={`relative rounded-2xl border-4 border-blue-300 p-5 handwriting ${done ? "bg-green-400" : "bg-white"
+        }`}
     >
       <div className="flex gap-3 items-center mt-[1rem]">
         <input
@@ -2522,7 +2659,27 @@ export default function PhonicsIsFunApp({
   isTogglevalue,
   setButtonData,
   data,
-}) {
+  setLiveActiveTab,
+  liveActiveTabs,
+  handleClearButtonLiveClass,
+  isClearButtonLiveClass,
+  handleClearButtonStudetnLiveClass,
+  handleBlendAndListenButton,
+  handleBlendAndListenButtonStudent,
+  isblendlistenButtonLiveClass,
+  handlemakewordlisteningbutton,
+  listenWord,
+  handleDeleteWordMakeTheWord,
+  handlemakeThewordpreviousbuttonStudent,
+  handlemakeThewordpreviousbutton,
+  isPreviousButton,
+  handleWriteThewordListenButton,
+  isWriteTheWordListen,
+  handleWriteThewordListenButtonStudent,
+  isWriteTheWordClear, handleWriteTheWordClearButtonStudent, handleWriteTheWordClearButton,
+  handleDecodingTextChange,decodingText,
+  deleteHandlerDecodingText,
+}:any) {
   const [active, setActive] = useState<ToolType | null>(null);
   const [blendSel, setBlendSel] = useState<PickItem[]>([]);
   const [makeA, setMakeA] = useState<PickItem[]>([]);
@@ -2640,8 +2797,17 @@ export default function PhonicsIsFunApp({
       }
     }
     setActive(null);
+    setBlendSel([]);
+    setMakeA([]);
+    stopAllAudio();
     setPreviousTool(active);
     setCurrentToolStartTime(now);
+    if(isLiveClass === true && role_name === "tutor"){
+      handleDecodingTextChange("")
+      liveClassActiveTabHandler(null)
+      setPreviousTool(active);
+      setCurrentToolStartTime(now);
+    }
   };
 
   useEffect(() => {
@@ -2820,24 +2986,60 @@ export default function PhonicsIsFunApp({
   }, []);
 
   useEffect(() => {
-    const id= data?.id;
-    const speakText=data?.speakText;
-    const audio =  data?.audio;
-    const label = data?.label;
-    console.log(data,"data append");
-    playPhoneme(id, speakText, audio);
-    handlePick(label,id)
+
+    if (isLiveClass === true) {
+      const id = data?.id;
+      const speakText = data?.speakText;
+      const audio = data?.audio;
+      const label = data?.label;
+      console.log(data, "data append");
+      playPhoneme(id, speakText, audio);
+      handlePick(label, id)
+    }
   }, [data]);
 
+
+
+
+
+
+  useEffect(() => {
+    if (isLiveClass === true && role_name !== "tutor") {
+      
+      setActive(liveActiveTabs);
+      if (liveActiveTabs !== "Blending Board") setBlendSel([]);
+      
+    }
+
+  }, [liveActiveTabs])
+
+  const liveClassActiveTabHandler = (t: any) => {
+    setLiveActiveTab(t);
+  };
+
+  const tabSwitchingHandler = (t: any) => {
+    if (isLiveClass === true && role_name === "tutor") {
+      liveClassActiveTabHandler(t);
+      if (t !== "Blending Board") setBlendSel([]);
+    }
+    setActive(t);
+    if (t !== "Blending Board") setBlendSel([]);
+    setIsSidebarOpen(false);
+    setMakeA([]);
+  };
+
+
+
+
   return (
-    <div className="min-h-screen flex  bg-gradient-to-br from-indigo-400 to-violet-500 py-6 px-4 rounded-md border border-red-600">
-      <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-6">
+    <div className="min-h-screen flex  bg-gradient-to-br from-indigo-400 to-violet-500 py-6 px-4 rounded-md ">
+      <div className={`max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-6 ${isLiveClass === true ? "w-full" : ""}`}>
         <h1 className="text-center text-lg md:text-4xl font-black text-slate-700 drop-shadow mb-1">
           {active ? `🎯 ${active}` : "🎉 Phonics is Fun!"}
         </h1>
 
         <div className="relative flex flex-row items-center top-[-3.5rem]">
-          {active && (
+          { (isLiveClass === true && role_name === "tutor")&&  active && (
             <button
               // onClick={() => setActive(null)}
               onClick={handleBackButton}
@@ -2860,7 +3062,7 @@ export default function PhonicsIsFunApp({
             </button>
           )}
           {/* Toggle Button */}
-          <div
+          {(isLiveClass === true && role_name === "tutor")&&(<div
             ref={menuIconRef}
             className="w-[100%] max-w-[50px] cursor-pointer relative"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -2874,7 +3076,7 @@ export default function PhonicsIsFunApp({
               alt={isSidebarOpen ? "Close Menu" : "Open Menu"}
               className="w-full h-auto"
             />
-          </div>
+          </div>)}
 
           {/* Dropdown Menu */}
           {isSidebarOpen && (
@@ -2883,17 +3085,12 @@ export default function PhonicsIsFunApp({
                 {TOOLS.map((t) => (
                   <button
                     key={t}
-                    onClick={() => {
-                      setActive(t);
-                      if (t !== "Blending Board") setBlendSel([]);
-                      setIsSidebarOpen(false);
-                    }}
+                    onClick={() => tabSwitchingHandler(t)}
                     className={`rounded-xl font-semibold text-[12px] px-4 py-2 text-left
-              ${
-                active === t
-                  ? "bg-slate-900 text-white"
-                  : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-              }`}
+              ${active === t
+                        ? "bg-slate-900 text-white"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      }`}
                   >
                     {t}
                   </button>
@@ -2908,12 +3105,35 @@ export default function PhonicsIsFunApp({
               selection={blendSel}
               onClear={() => setBlendSel([])}
               onBlend={doBlend}
+              handleClearButtonLiveClass={handleClearButtonLiveClass}
+              isClearButtonLiveClass={isClearButtonLiveClass}
+              isLiveClass={isLiveClass}
+              role_name={role_name}
+              handleClearButtonStudetnLiveClass={handleClearButtonStudetnLiveClass}
+              handleBlendAndListenButton={handleBlendAndListenButton}
+              handleBlendAndListenButtonStudent={handleBlendAndListenButtonStudent}
+              isblendlistenButtonLiveClass={isblendlistenButtonLiveClass}
             />
           )}
           {active === "Make the Word" && (
-            <MakeTheWord tiles={makeA} onClear={() => setMakeA([])} />
+            <MakeTheWord tiles={makeA} onClear={() => setMakeA([])}
+             handlemakewordlisteningbutton={handlemakewordlisteningbutton}
+              listenWord={listenWord}  
+              isLiveClass={isLiveClass} 
+                role_name={role_name}
+                handlemakeThewordpreviousbuttonStudent ={handlemakeThewordpreviousbuttonStudent}
+  handlemakeThewordpreviousbutton={handlemakeThewordpreviousbutton}
+  isPreviousButton={isPreviousButton}
+  handleWriteThewordListenButton={handleWriteThewordListenButton}
+  isWriteTheWordListen = {isWriteTheWordListen}
+  handleWriteThewordListenButtonStudent = {handleWriteThewordListenButtonStudent}
+  isWriteTheWordClear={isWriteTheWordClear}
+  handleWriteTheWordClearButtonStudent={handleWriteTheWordClearButtonStudent}
+  handleWriteTheWordClearButton={handleWriteTheWordClearButton}
+  handleDeleteWordMakeTheWord={handleDeleteWordMakeTheWord}
+                />
           )}
-          {active === "Decoding" && <Decoding />}
+          {active === "Decoding" && <Decoding handleDecodingTextChange={handleDecodingTextChange} role_name={role_name} decodingText={decodingText}  isLiveClass={isLiveClass} deleteHandlerDecodingText={deleteHandlerDecodingText}/>}
           {active === "Write the Letter" && <WriteLetter />}
         </div>
         {!active && (
@@ -2957,8 +3177,8 @@ export default function PhonicsIsFunApp({
           </div>
         )}
       </div>
-      {isLiveClass === "true" && role_name === "tutor" && (
-        <div className="flex flex-col items-center gap-[10px]">
+      {isLiveClass === true && role_name === "tutor" && (
+        <div className="flex flex-col items-center gap-[10px] text-center">
           <div className="text-xl">Student Access</div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input
