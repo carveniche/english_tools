@@ -19,6 +19,8 @@ import BlendEnd from "./json/lettterLettersound.json";
 // import opentype from 'opentype.js';
 import "./phonics.css";
 import { ifError } from "node:assert";
+import { englishPhonicDecoding } from "../../../../../redux/features/ComponentLevelDataReducer";
+import { useDispatch } from "react-redux";
 
 type SingleItem = {
   id: string;
@@ -320,11 +322,12 @@ function SoundButton({
 }) {
   // speak without the parenthetical hint
   const speakText = (label || "").replace(/\s*\(.*?\)/g, "").trim() || label;
+  const isAllow=canPlay(role_name, isTogglevalue);
   return (
     <button
       onClick={() => {
-        const iscanPlay = canPlay(role_name, isTogglevalue);
-        if (iscanPlay) {
+        const play =canPlay(role_name, isTogglevalue);
+        if (play) {
           return;
         }
         console.log(isLiveClass, "isLiveClass");
@@ -336,7 +339,7 @@ function SoundButton({
         playPhoneme(id, speakText, audio);
         onPick?.(label, id);
       }}
-      className={`min-h-[44px] text-white font-bold rounded-lg px-2 py-2 shadow-md hover:shadow-lg active:shadow transition-all text-[12px] md:text-[16px] ${color}`}
+      className={`min-h-[44px] text-white font-bold rounded-lg px-2 py-2 shadow-md hover:shadow-lg active:shadow transition-all text-[12px] md:text-[16px] ${color} ${isAllow ? "cursor-not-allowed" :""}`}
       aria-label={`sound ${label}`}
     >
       {label}
@@ -1928,11 +1931,12 @@ function SentenceDecoder({
 }
 
 // Decoding Component
-function Decoding({handleDecodingTextChange,role_name,decodingText,isLiveClass,deleteHandlerDecodingText}:any) {
+function Decoding({handleDecodingTextChange,role_name,decodingText,isLiveClass,deleteHandlerDecodingText,isTogglevalue}:any) {
   const [text, setText] = useState("");
   const [show, setShow] = useState("");
   const [warning, setWarning] = useState("");
   const maxLength = 50;
+   const dispatch = useDispatch();
 
   const graphemeToSoundMap = useMemo(() => {
     const map: Record<string, string> = {};
@@ -2035,13 +2039,14 @@ function Decoding({handleDecodingTextChange,role_name,decodingText,isLiveClass,d
   }, [decodingText]);
 
   useEffect(() => {
-   
+    
+  
     return () => {
-     if(role_name !== "tutor" && isLiveClass === true){
-      deleteHandlerDecodingText()
+       dispatch(englishPhonicDecoding(""))
+        
+      deleteHandlerDecodingText();
     };
-  }
-  }, []);
+  }, []); 
 
 
 
@@ -2050,7 +2055,13 @@ function Decoding({handleDecodingTextChange,role_name,decodingText,isLiveClass,d
       <form
         onSubmit={(e) => {
           e.preventDefault();
-         onSubmitHandler()
+          const hasAccess =
+          (isTogglevalue && role_name === "tutor") ||
+          (!isTogglevalue && role_name !== "tutor");
+        
+        if (hasAccess === false && isLiveClass) {
+          onSubmitHandler();
+        }
         }}
         className="flex gap-2 mb-4"
       >
@@ -2060,19 +2071,22 @@ function Decoding({handleDecodingTextChange,role_name,decodingText,isLiveClass,d
           placeholder="Type a word or short sentence and press Enter"
           className="mt-[1.5rem] flex-1 px-3 py-2 rounded-lg border-2 border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-400 text-lg"
           maxLength={maxLength + 1}
-          readOnly={role_name !== "tutor"}
-          onKeyDown={(e) => {
-            if (role_name !== "tutor" && e.key === "Enter") {
-              e.preventDefault(); // prevent enter key for students
-            }
-          }}
+          readOnly={(isLiveClass && (isTogglevalue && role_name === "tutor") || (!isTogglevalue && role_name !== "tutor"))}
+          // onKeyDown={(e) => {
+          //   // if (role_name !== "tutor" && e.key === "Enter") {
+          //     e.preventDefault(); // prevent enter key for students
+          //   // }
+          // }}
         />
-        { (role_name === "tutor") && (<button
-          className="px-4 py-2 rounded-lg bg-teal-500 text-white font-bold absolute top-0 right-0"
+        <button
+          className={`px-4 py-2 rounded-lg bg-teal-500 text-white font-bold absolute top-0 right-0
+          ${((isTogglevalue && role_name !== "tutor") || (!isTogglevalue && role_name === "tutor"))
+                ? "none"
+                : "cursor-not-allowed  opacity-50"}`}
           disabled={text.length > maxLength}
         >
           Show
-        </button>)}
+        </button>
       </form>
       {warning && <p className="text-red-500 text-sm mb-2">{warning}</p>}
       {show && text.length <= maxLength && (
@@ -2276,10 +2290,17 @@ function PathTracer({
   letter,
   isUpper,
   onProgress,
+  isTogglevalue,
+  role_name,
+  isLiveClass,
 }: {
   letter: string;
   isUpper: boolean;
   onProgress: (n: number) => void;
+  isTogglevalue: boolean;
+  role_name: string;
+  isLiveClass: boolean;
+  
 }) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [progress, setProgress] = useState(0);
@@ -2394,6 +2415,14 @@ function PathTracer({
       setLastT(0);
     }
   }
+  const [access,setAccess]=useState(false);
+  useEffect(()=>{
+   const a=((isTogglevalue && role_name !== "tutor") || (!isTogglevalue && role_name === "tutor"))
+
+   setAccess(a)
+
+  },[role_name,isLiveClass,isTogglevalue])
+ 
 
   return (
     <div className="flex flex-col items-center">
@@ -2401,9 +2430,9 @@ function PathTracer({
         ref={svgRef}
         width={220}
         height={230}
-        className="bg-slate-50 rounded-xl border-2 border-slate-200 touch-none"
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
+        className={`bg-slate-50 rounded-xl border-2 border-slate-200 touch-none ${access? "":"opacity-50 cursor-not-allowed"}`}
+        onPointerMove={isLiveClass ? access ? onPointerMove :undefined:onPointerMove}
+        onPointerUp={isLiveClass ? access ?onPointerUp : undefined : onPointerUp}
       >
         {/* dotted guide paths */}
         {strokes.map((pts: any, i: any) => (
@@ -2482,7 +2511,7 @@ function PathTracer({
   );
 }
 
-function WriteLetter() {
+function WriteLetter({isTogglevalue,role_name,writeALetterText,isLiveClass,writeALetterLetterData}:any) {
   const [val, setVal] = useState("a");
   const [upperDone, setUpperDone] = useState(0);
   const [lowerDone, setLowerDone] = useState(0);
@@ -2531,15 +2560,46 @@ function WriteLetter() {
   // Handle input change with validation
   const handleInputChange = (e: any) => {
     const input = e.target.value.slice(0, 1); // Restrict to single character
-    if (/^[a-zA-Z]$/.test(input)) {
-      // Only allow alphabetic letters
-      setVal(input.toLowerCase());
-    } else if (input === "") {
-      // Allow clearing the input
-      setVal("");
+
+    if(isLiveClass){
+      if (/^[a-zA-Z]$/.test(input)) {
+        // Only allow alphabetic letters
+        writeALetterText(input.toLowerCase())
+      } else if (input === "") {
+        writeALetterText("")
+      }
+    }else{
+      if (/^[a-zA-Z]$/.test(input)) {
+        // Only allow alphabetic letters
+        setVal(input.toLowerCase());
+      } else if (input === "") {
+        // Allow clearing the input
+        setVal("");
+      }
     }
+
+   
   };
 
+  useEffect(() => {
+   console.log(writeALetterLetterData,"writeALetterLetterData")
+      setVal(writeALetterLetterData)
+    
+  },[writeALetterLetterData])
+
+  const handlNextLive = ()=>{
+    const nextLetter = String.fromCharCode(writeALetterLetterData.charCodeAt(0) + 1);
+    if (/^[a-zA-Z]$/.test(nextLetter)) {
+      // console.log('hello')
+      writeALetterText(nextLetter.toLowerCase())
+    } else {
+      // console.log('h')
+      writeALetterText(nextLetter.toLowerCase());
+    }
+  }
+
+
+  
   // Calculate progress percentage
   const progressPercent = Math.round(upperDone * 50 + lowerDone * 50);
 
@@ -2552,7 +2612,13 @@ function WriteLetter() {
         <input
           value={val}
           onChange={handleInputChange}
-          className="px-3 py-2 rounded-lg border-2 border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-lg w-40"
+          disabled={
+            (isTogglevalue && role_name === "tutor") || (!isTogglevalue && role_name !== "tutor")
+          }
+          className={`px-3 py-2 rounded-lg border-2 border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-lg w-40
+          ${((isTogglevalue && role_name !== "tutor") || (!isTogglevalue && role_name === "tutor"))
+                ? "none"
+                : " cursor-not-allowed  "}`}
           placeholder="Enter a letter"
           maxLength={1}
         />
@@ -2568,12 +2634,20 @@ function WriteLetter() {
           </div>
         </div>
         {done && val.toLowerCase() !== "z" && (
-          <button
-            onClick={handleNext}
-            className="absolute right-0 top-0 px-4 py-2 rounded-lg font-bold shadow bg-green-600 text-white hover:bg-green-700"
+          (<button
+            onClick={isLiveClass ? handlNextLive : handleNext}
+            disabled={
+              (isTogglevalue && role_name === "tutor") || (!isTogglevalue && role_name !== "tutor")
+            }
+            className={`absolute right-0 top-0 px-4 py-2 rounded-lg font-bold shadow 
+              bg-green-600 text-white hover:bg-green-700 
+              ${((isTogglevalue && role_name !== "tutor") || (!isTogglevalue && role_name === "tutor"))
+                ? "none"
+                : "pointer-events-none cursor-not-allowed  opacity-50"}`}
+            // className="absolute right-0 top-0 px-4 py-2 rounded-lg font-bold shadow bg-green-600 text-white hover:bg-green-700"
           >
             Next
-          </button>
+          </button>)
         )}
         {done && val.toLowerCase() === "z" && (
           <button
@@ -2606,13 +2680,13 @@ function WriteLetter() {
           <div className="text-center font-bold text-slate-600 mb-2">
             Uppercase
           </div>
-          <PathTracer letter={val} isUpper onProgress={setUpperDone} />
+          <PathTracer letter={val} isUpper onProgress={setUpperDone} isTogglevalue ={isTogglevalue } role_name={role_name} isLiveClass={isLiveClass}/>
         </div>
         <div>
           <div className="text-center font-bold text-slate-600 mb-2">
             Lowercase
           </div>
-          <PathTracer letter={val} isUpper={false} onProgress={setLowerDone} />
+          <PathTracer letter={val} isUpper={false} onProgress={setLowerDone} isTogglevalue ={isTogglevalue } role_name={role_name} isLiveClass={isLiveClass} />
         </div>
       </div>
       <p className="text-slate-500 text-sm mt-3">
@@ -2679,6 +2753,8 @@ export default function PhonicsIsFunApp({
   isWriteTheWordClear, handleWriteTheWordClearButtonStudent, handleWriteTheWordClearButton,
   handleDecodingTextChange,decodingText,
   deleteHandlerDecodingText,
+  writeALetterText,
+  writeALetterLetterData,
 }:any) {
   const [active, setActive] = useState<ToolType | null>(null);
   const [blendSel, setBlendSel] = useState<PickItem[]>([]);
@@ -3133,8 +3209,21 @@ export default function PhonicsIsFunApp({
   handleDeleteWordMakeTheWord={handleDeleteWordMakeTheWord}
                 />
           )}
-          {active === "Decoding" && <Decoding handleDecodingTextChange={handleDecodingTextChange} role_name={role_name} decodingText={decodingText}  isLiveClass={isLiveClass} deleteHandlerDecodingText={deleteHandlerDecodingText}/>}
-          {active === "Write the Letter" && <WriteLetter />}
+          {active === "Decoding" && <Decoding 
+          handleDecodingTextChange={handleDecodingTextChange} 
+          role_name={role_name}
+           decodingText={decodingText} 
+           isLiveClass={isLiveClass} 
+           deleteHandlerDecodingText={deleteHandlerDecodingText}
+           isTogglevalue={isTogglevalue}
+           />}
+          {active === "Write the Letter" && <WriteLetter 
+          isTogglevalue={isTogglevalue} 
+          role_name={role_name}
+          writeALetterText={writeALetterText}
+          isLiveClass={isLiveClass} 
+          writeALetterLetterData={writeALetterLetterData}
+          />}
         </div>
         {!active && (
           <div className="mt-2">
@@ -3179,7 +3268,9 @@ export default function PhonicsIsFunApp({
       </div>
       {isLiveClass === true && role_name === "tutor" && (
         <div className="flex flex-col items-center gap-[10px] text-center">
-          <div className="text-xl">Student Access</div>
+          <div className="text-xl">{
+                  isTogglevalue ? "Student Access" : "Teacher Access"}
+         </div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
