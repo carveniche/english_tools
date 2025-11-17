@@ -11,16 +11,20 @@ const GRID_TINTS = [
   "#e0f2fe", "#fce7f3", "#fef9c3", "#dcfce7", "#ede9fe",
   "#fff7ed", "#f1f5f9", "#f0fdfa", "#fae8ff", "#fee2e2"
 ];
+const FOUND_COLORS = [
+  "#FF4C4C", // vivid red
+  "#FF7F50", // coral
+  "#FFB347", // warm amber
+  "#6AB04C", // bright olive green
+  "#2980B9", // ocean blue
+  "#8E44AD", // deep purple
+  "#16A085", // teal
+  "#F39C12"  // golden yellow
+];
+
+
 const CARD_GRADS = [
   // "linear-gradient(135deg,#fef3c7,#fde68a)",
-  // "linear-gradient(135deg,#e9d5ff,#c4b5fd)",
-  // "linear-gradient(135deg,#bfdbfe,#93c5fd)",
-  // "linear-gradient(135deg,#fecaca,#fda4af)",
-  // "linear-gradient(135deg,#fde68a,#fcd34d)",
-  // "linear-gradient(135deg,#fbcfe8,#f9a8d4)",
-  // "linear-gradient(135deg,#a7f3d0,#6ee7b7)",
-  // "linear-gradient(135deg,#fde68a,#fca5a5)",
-  // "linear-gradient(135deg,#c7d2fe,#a5b4fc)"
 ];
 const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -29,7 +33,7 @@ const testDataSet = {
   word_list: [
     {
       data_set_id: 1,
-      words: ["APPLE", "BANANA", "GRAPE", "MANGO", "PEACH","SMART","VOCABULARY",'DATASET']
+      words: ["VOCABULARY", 'DATASET']
     }
   ]
 };
@@ -44,9 +48,10 @@ const shuffle = (arr) => {
   return a;
 };
 
-<Loader/>
+<Loader />
 
 function generatePuzzleFromSet(words) {
+
   const grid = Array.from({ length: ROWS }, () => Array(COLS).fill(""));
   const placed = [];
 
@@ -146,8 +151,12 @@ function buildPath(a, b) {
 }
 
 // ======== Component ========
-export default function WordSearchA1() {
+export default function WordSearch({listingData,isLiveClass,role_name,handleStartGame,isStartedGame,dragElementDataTrack,dragData,handlerClearfunction}) {
+  useEffect(()=>{
+   console.log(listingData,isLiveClass,role_name,"listingDatalistingData")
+  },[listingData])
   const [screen, setScreen] = useState("title");
+  const [handleBack, setHandleBack] = useState(false)
   const [levelIdx, setLevelIdx] = useState(0);
   const [toolData, setToolData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -160,13 +169,15 @@ export default function WordSearchA1() {
   const [celebrate, setCelebrate] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
+  const [storedTime, setStoredTime] = useState(0);
+  const [storing_level_name, setlevel_data] = useState('')
   const svgRef = useRef(null);
   const { w: vw, h: vh } = useViewportSize();
   const isMobile = vw < 640;
   const isTablet = vw >= 640 && vw < 1010;
   const padding = 16,
-        gap = 12,
-        timeBar = 28;
+    gap = 12,
+    timeBar = 28;
   const sideW = isMobile ? vw - padding * 2 : isTablet ? 200 : Math.max(220, Math.min(320, Math.floor(vw * 0.26)));
   const availW = isMobile ? vw - padding * 2 : vw - padding * 2 - sideW - gap;
   const availH = vh - padding * 2 - timeBar;
@@ -174,7 +185,7 @@ export default function WordSearchA1() {
   const cellPx = Math.floor(Math.min(availW / COLS, availH / ROWS));
   const boardW = cellPx * COLS;
   const boardH = cellPx * ROWS;
-
+  // const level_tag =currentSet.word_list[0].level
   const hasValidData = toolData && toolData.word_list?.[0]?.words?.length > 0;
 
   // Timer for elapsed time
@@ -192,19 +203,27 @@ export default function WordSearchA1() {
   );
 
   useEffect(() => {
+    // setPuzzle(ans)
+    console.log(listingData, "sdd-------")
+  }, [listingData])
+
+
+  useEffect(() => {
     correctAudio.load();
   }, [correctAudio]);
 
   // Initialize puzzle with testDataSet or backend data via window.wordSearchTool
   useEffect(() => {
-  //   setLoading(true);
-  //   // For testing, initialize with testDataSet
-  //   // setToolData(testDataSet);
-  //   // setCurrentSet(testDataSet);
-  //   // setPuzzle(generatePuzzleFromSet(testDataSet.word_list[0].words));
-  //   // setLoading(false);
+    //   setLoading(true);
+    //   // For testing, initialize with testDataSet
+    setToolData(testDataSet);
+    setCurrentSet(testDataSet);
+    console.log(generatePuzzleFromSet(testDataSet.word_list[0].words), "000000000")
+    // setPuzzle(generatePuzzleFromSet(testDataSet.word_list[0].words));
+    setPuzzle(listingData)
+    setLoading(false);
 
-  //   // Production: Set up window.wordSearchTool to receive backend data
+    //   // Production: Set up window.wordSearchTool to receive backend data
     window.wordSearchTool = (data) => {
       console.log("window.wordSearchTool received data:", data);
       if (
@@ -226,7 +245,7 @@ export default function WordSearchA1() {
         };
         setToolData(filteredData);
         setCurrentSet(filteredData);
-        setPuzzle(generatePuzzleFromSet(filteredData.word_list[0].words));
+        // setPuzzle(generatePuzzleFromSet(filteredData.word_list[0].words));
         setLoading(false);
       } else {
         console.error("Invalid toolData structure:", data);
@@ -242,55 +261,55 @@ export default function WordSearchA1() {
   }, []);
   // testing ----
   // Replace your initialization useEffect with this:
-// useEffect(() => {
-//   setLoading(true);
-  
-//   // Set up the callback immediately
-//   window.wordSearchTool = (data) => {
-//     console.log("Received data:", data);
-    
-//     // Handle both possible data structures
-//     let words = [];
-    
-//     if (data?.data_set?.[0]?.word_list?.[0]?.words) {
-//       words = data.data_set[0].word_list[0].words;
-//     } else if (data?.word_list?.[0]?.words) {
-//       words = data.word_list[0].words;
-//     }
-    
-//     if (words.length > 0) {
-//       const filteredData = {
-//         word_list: [{
-//           data_set_id: 1,
-//           words: words.filter(word => word && word.length <= 10)
-//         }]
-//       };
-      
-//       setToolData(filteredData);
-//       setCurrentSet(filteredData);
-//       setPuzzle(generatePuzzleFromSet(filteredData.word_list[0].words));
-//     } else {
-//       // Fallback to test data
-//       // setToolData(testDataSet);
-//       // setCurrentSet(testDataSet);
-//       // setPuzzle(generatePuzzleFromSet(testDataSet.word_list[0].words));
-//     }
-    
-//     setLoading(false);
-//   };
+  // useEffect(() => {
+  //   setLoading(true);
 
-//   // For testing, use test data immediately
-//   // window.wordSearchTool(testDataSet);
-  
-//   return () => {
-//     window.wordSearchTool = undefined;
-//   };
-// }, []);
+  //   // Set up the callback immediately
+  //   window.wordSearchTool = (data) => {
+  //     console.log("Received data:", data);
+
+  //     // Handle both possible data structures
+  //     let words = [];
+
+  //     if (data?.data_set?.[0]?.word_list?.[0]?.words) {
+  //       words = data.data_set[0].word_list[0].words;
+  //     } else if (data?.word_list?.[0]?.words) {
+  //       words = data.word_list[0].words;
+  //     }
+
+  //     if (words.length > 0) {
+  //       const filteredData = {
+  //         word_list: [{
+  //           data_set_id: 1,
+  //           words: words.filter(word => word && word.length <= 10)
+  //         }]
+  //       };
+
+  //       setToolData(filteredData);
+  //       setCurrentSet(filteredData);
+  //       setPuzzle(generatePuzzleFromSet(filteredData.word_list[0].words));
+  //     } else {
+  //       // Fallback to test data
+  //       // setToolData(testDataSet);
+  //       // setCurrentSet(testDataSet);
+  //       // setPuzzle(generatePuzzleFromSet(testDataSet.word_list[0].words));
+  //     }
+
+  //     setLoading(false);
+  //   };
+
+  //   // For testing, use test data immediately
+  //   // window.wordSearchTool(testDataSet);
+
+  //   return () => {
+  //     window.wordSearchTool = undefined;
+  //   };
+  // }, []);
 
   // Update puzzle when level changes
   useEffect(() => {
     if (!toolData || !hasValidData || !currentSet) return;
-    setPuzzle(generatePuzzleFromSet(currentSet.word_list[0].words));
+    // setPuzzle(generatePuzzleFromSet(currentSet.word_list[0].words));
     setFound(new Set());
     setRings([]);
     setElapsed(0);
@@ -306,22 +325,50 @@ export default function WordSearchA1() {
   }, [screen]);
 
   // Check if puzzle is finished
-  const finished = useMemo(() => puzzle && puzzle.words.length > 0 && found.size === puzzle.words.length, [puzzle, found]);
+  const finished = useMemo(() => puzzle && puzzle?.words?.length > 0 && found.size === puzzle?.words?.length, [puzzle, found]);
+
   useEffect(() => {
-    if (!finished) return;
-    setCelebrate(true);
+    // console.log(finished,"finishedfinished")
+
+    if (!finished) {
+      setHandleBack(false);  // Reset only if not finished
+      //  console.log(handleBack,"handleBack,1")
+      return;
+    }
+    // console.log(handleBack,"handleBack,2")
+    // console.log(timerActive,"setTimerActive")
+    // console.log(finished,"finishedfinished")
+    // console.log(celebrate,"1st data")
+    // if (!finished) return;
+    setStoredTime(seconds);
     setTimerActive(false);
+    setHandleBack(true);
+    setCelebrate(true);
+    const level = currentSet.word_list[0].level
+    const currentDataSetId = currentSet.word_list[0].data_set_id;
+    console.log("submit calling------")
+    submitTimespent(currentDataSetId, seconds, level);
+
   }, [finished]);
+  useEffect(() => {
+    // console.log("handleBack UPDATED to:", handleBack);  
+  }, [handleBack]);
 
   const onDown = (r, c) => setDrag({ active: true, start: { r, c }, end: { r, c } });
   const onEnter = (r, c) => setDrag((d) => (d?.active ? { ...d, end: { r, c } } : d));
   const onUp = () => {
+    if(role_name ==="tutor"){
+      // console.log("wordSearchdatatrack break")
+       }
     if (!drag?.active || !puzzle) return;
     const { start, end } = drag;
     if (!start || !end) {
       setDrag(null);
       return;
     }
+    if(role_name !=="tutor" && isLiveClass===true){
+      dragElementDataTrack(drag);
+   }
     const isStraight = start.r === end.r || start.c === end.c;
     const isDiag = Math.abs(start.r - end.r) === Math.abs(start.c - end.c);
     const forward = end.r >= start.r;
@@ -331,58 +378,67 @@ export default function WordSearchA1() {
       const text = path.map(({ r, c }) => puzzle.grid[r][c]).join("");
       const hit = puzzle.words.find((w) => !found.has(w) && w === text);
       if (hit) {
+        const colorIndex = found.size; // Index based on find order (0-7)
+        const wordColor = FOUND_COLORS[colorIndex % FOUND_COLORS.length];
         setFound((s) => new Set([...s, hit]));
         correctAudio.currentTime = 0;
         correctAudio.play().catch((err) => console.error("Correct audio error:", err));
         if (isDiag) {
           setRings((rs) => [
             ...rs,
-            ...path.map(({ r, c }, i) => ({ x: c, y: r, w: 1, h: 1, id: `diag-${hit}-${i}-${r}-${c}` })),
+            ...path.map(({ r, c }, i) => ({ x: c, y: r, w: 1, h: 1, id: `diag-${hit}-${i}-${r}-${c}`, color: wordColor })),
           ]);
         } else {
           const x = Math.min(start.c, end.c),
-                y = Math.min(start.r, end.r);
+            y = Math.min(start.r, end.r);
           const w = start.r === end.r ? path.length : 1,
-                h = start.c === end.c ? path.length : 1;
-          setRings((rs) => [...rs, { x, y, w, h, id: `rect-${x}-${y}-${w}-${h}-${hit}` }]);
+            h = start.c === end.c ? path.length : 1;
+          setRings((rs) => [...rs, { x, y, w, h, id: `rect-${x}-${y}-${w}-${h}-${hit}`, color: wordColor }]);
         }
       }
     }
     setDrag(null);
   };
+  useEffect(() => {
+    console.log("handleBack UPDATED to:", handleBack, "on finish:", finished);
+  }, [handleBack, finished]);
+  useEffect(() => {
+    if(role_name === "tutor" && isLiveClass === true && dragData){
+      console.log(dragData,"wordSearchdatatrack")
+      setDrag(dragData)
+    
+      handlerClearfunction();
+    }
+  },[dragData])
 
-  // Fetch new words by triggering backend
-  const fetchNewWords =  (data_set_id,level) => {
-    console.log('i caling')
+  useEffect(()=>{
+    if(isLiveClass === true && role_name === "tutor"){
+      onUp()
+    }
+  },[drag])
+
+
+  const fetchNewWords = async (data_set_id, level) => {
+    console.log('fetchNewWords called');
     setLoading(true);
     try {
-      console.log('i func caling')
+      console.log('Creating formData');
       const formData = new FormData();
       formData.append("data_set_id", data_set_id);
       formData.append("level", level);
       formData.append("status", "completed");
-      console.log("Calling window.wordSearchTool with data_set_id:", data_set_id, "status: completed");
-       window.gettingWordSearchData(formData);
-      // For testing: Simulate backend response and trigger window.wordSearchTool
-      const mockResponse = {
-        data_set: [
-          {
-            word_list: [
-              {
-                data_set_id: data_set_id + 1,
-                words: ["RIVER", "MOUNTAIN", "FOREST", "OCEAN", "VALLEY"]
-              }
-            ]
-          }
-        ]
-      };
-      // window.wordSearchTool(mockResponse);
+      console.log("Triggering backend:", data_set_id, "status: completed");
+
+      // For testing: Simulate backend response directly (uncomment window.wordSearchTool(mockResponse) if you want to test the callback specifically)
+
       console.log("Simulated window.wordSearchTool with mock response");
 
       // Production: Trigger backend to call window.wordSearchTool
+      const backendData = await window.gettingWordSearchData(formData);
+      console.log("Backend response received:", backendData);
 
-      // Wait briefly to ensure window.wordSearchTool has processed
-       new Promise((resolve) => setTimeout(resolve, 100));
+      // Wait briefly to ensure window.wordSearchTool has processed (only needed if using callback)
+      await new Promise((resolve) => setTimeout(resolve, 200));
       console.log("toolData after fetch:", toolData);
       if (toolData && toolData.word_list && toolData.word_list[0].words) {
         return toolData;
@@ -397,9 +453,8 @@ export default function WordSearchA1() {
       setLoading(false);
     }
   };
-
   // Submit timespent
-  const submitTimespent = (data_set_id, timespent,level) => {
+  const submitTimespent = (data_set_id, timespent, level) => {
     const formData = new FormData();
     formData.append("data_set_id", data_set_id);
     formData.append("level", level);
@@ -415,22 +470,24 @@ export default function WordSearchA1() {
 
   // Handle Next button
   const handleNextLevel = async () => {
+
     if (!currentSet) {
       console.error("No currentSet available");
       setLoading(false);
       return;
     }
+
     setLoading(true);
     setCelebrate(false);
-    const level =currentSet.word_list[0].level
+    const level = currentSet.word_list[0].level
     const currentDataSetId = currentSet.word_list[0].data_set_id;
     console.log("handleNextLevel: Submitting timespent for data_set_id:", currentDataSetId);
-    submitTimespent(currentDataSetId, seconds,level);
+    // submitTimespent(currentDataSetId, seconds,level);
 
     console.log("handleNextLevel: Fetching new words for data_set_id:", currentDataSetId);
     // const newData = await fetchNewWords(currentDataSetId);
     // fetchNewWords(currentDataSetId);
-    const newData = await fetchNewWords(currentDataSetId,level);
+    const newData = await fetchNewWords(currentDataSetId, level);
 
     console.log("handleNextLevel: Received newData:", newData);
     if (newData) {
@@ -438,39 +495,51 @@ export default function WordSearchA1() {
         console.log("handleNextLevel: Incrementing levelIdx to:", prev + 1);
         return prev + 1;
       });
-      setPuzzle(generatePuzzleFromSet(newData.word_list[0].words));
+      // setPuzzle(generatePuzzleFromSet(newData.word_list[0].words));
       setFound(new Set());
       setRings([]);
       setElapsed(0);
       setSeconds(0);
       setTimerActive(true);
+      setHandleBack(false)
     }
     setLoading(false);
   };
 
   // Handle close button
   const handleCloseButton = () => {
+    // setStoredTime(seconds)  // REMOVE: Already captured on finish
+    console.log("Close Clicked - celebrate:", celebrate, "handleBack:", handleBack, "seconds:", seconds, "storedTime:", storedTime);
+    const level_two = currentSet.word_list[0].level
     if (!currentSet) return;
     const formData = new FormData();
     formData.append("data_set_id", currentSet.word_list[0].data_set_id);
-    formData.append("status", "inprogress");
-    formData.append("timespent", seconds);
+    const status = handleBack ? "completed" : "inprogress";
+
+    console.log("Status determined:", status, "handleBack:", handleBack);
+    formData.append("status", status);
+    const timespent = handleBack ? storedTime : seconds;
+    console.log("timespent determined:", timespent, "handleBack:", handleBack)
+    formData.append("timespent", timespent);  // FIX: Use stored value (captured on finish)
+    formData.append("level", level_two);
     try {
       window.wordsearchtimespent(formData);
       console.log("Close button: Timespent submitted:", {
         data_set_id: currentSet.word_list[0].data_set_id,
-        status: "inprogress",
-        timespent: seconds,
+        status: handleBack ? "completed" : "inprogress",  // FIX: Dynamic status in log
+        timespent: storedTime,
       });
     } catch (err) {
       console.error("Error submitting timespent on close:", err);
     }
     setScreen("title");
+    //  setTimerActive(false);
   };
 
   useEffect(() => {
     const closeButton = document.getElementById("closing-btn-in-rails");
     if (closeButton) {
+      console.log("Attaching listener - handleBack:", handleBack);
       closeButton.addEventListener("click", handleCloseButton);
     }
     return () => {
@@ -478,23 +547,57 @@ export default function WordSearchA1() {
         closeButton.removeEventListener("click", handleCloseButton);
       }
     };
-  }, [currentSet, seconds]);
+  }, [currentSet, handleBack]);
 
   // const dragCells = useMemo(() => (drag?.active && puzzle ? buildPath(drag.start, drag.end) : []), [drag, puzzle]);
- const dragCells = useMemo(
-  () => (drag?.active && puzzle ? buildPath(drag.start, drag.end) : []),
-  [drag, puzzle]
-);
-// const isDraggingHere = dragCells.some(p => p.r === r && p.c === c);
+  const dragCells = useMemo(
+    () => (drag?.active && puzzle ? buildPath(drag.start, drag.end) : []),
+    [drag, puzzle]
+  );
+  const [avaHeight, setAvaHeight] = useState("82vh"); // initial default
+
+  useEffect(() => {
+    function updateViewportHeight() {
+      // Calculate the currently visible height in vh units
+      const visibleVh = (window.innerHeight);
+      setAvaHeight(`${visibleVh.toFixed(2)}px`);
+    }
+
+    // updateViewportHeight(); // set on mount
+
+    window.addEventListener("resize", updateViewportHeight);
+    // window.addEventListener("orientationchange", updateViewportHeight);
+
+    return () => {
+      window.removeEventListener("resize", updateViewportHeight);
+      // window.removeEventListener("orientationchange", updateViewportHeight);
+    };
+  }, []);
+
+  const handleStart =()=>{
+      setSeconds(0);
+      setTimerActive(true);
+      setScreen("play");
+      if(role_name === "tutor" && isLiveClass){
+        handleStartGame()
+      }
+  }
+
+  useEffect(()=>{
+    if(isStartedGame && role_name !== "tutor" && isLiveClass){
+      handleStart()
+    }
+  },[isStartedGame])
+  // const isDraggingHere = dragCells.some(p => p.r === r && p.c === c);
   return (
     <div
       style={{
         width: "100%",
-        height: isMobile ? "85vh" : isTablet ? "60vh" : "82vh",
-        overflow:isMobile?"scroll": "hidden",
+        height: isMobile ? "85vh" : isTablet ? "60vh" : avaHeight,
+        overflow: isMobile ? "scroll" : "hidden",
         borderRadius: "10px",
         // background: "linear-gradient(135deg, #ffd6e8, #d6f0ff, #e6ffd6, #fff0d6)",
-        backgroundImage:"url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/forestBg.jpg)",
+        backgroundImage: "url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/forestBg.jpg)",
         position: "relative",
       }}
       onMouseUp={onUp}
@@ -536,11 +639,10 @@ export default function WordSearchA1() {
       )}
       {!loading && hasValidData && screen === "title" && (
         <TitleScreen
-          onStart={() => {
-            setSeconds(0);
-            setTimerActive(true);
-            setScreen("play");
-          }}
+          onStart={handleStart}
+          isLiveClass={isLiveClass}
+      role_name={role_name}
+
         />
       )}
       {!loading && hasValidData && puzzle && currentSet && screen === "play" && (
@@ -554,234 +656,142 @@ export default function WordSearchA1() {
             display: "flex",
             flexDirection: isMobile ? "column" : "row",
             gap: "1rem",
-            justifyContent: isMobile? "start":"center",
+            justifyContent: isMobile ? "start" : "center",
             alignItems: "center",
           }}
         >
-          {/* <div
-          className="border border-red-200"
+          <div
+            className="relative  rounded-xl flex gap-[0.1rem]"
             style={{
-              position: "relative",
               width: isMobile ? "100%" : boardW * 0.8,
-              height: isMobile ? "45%" : boardH * 0.8,
-              borderRadius: 16,
-              background: GRID_TINTS[levelIdx % GRID_TINTS.length],
+              height: isMobile ? "70%" : isTablet ? boardH * 1 : boardH * 0.7,
+              // background: GRID_TINTS[levelIdx % GRID_TINTS.length],
+              // background: "#F5DEB3",
+              backgroundImage: 'url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/wordBg.jpg)',
+              display: "grid",
+              gridTemplateColumns: `repeat(${COLS}, 1fr)`,
+              gridTemplateRows: `repeat(${ROWS}, 1fr)`,
+              padding: '1rem'
             }}
             onMouseLeave={() => setDrag(null)}
           >
-            <svg
-              viewBox={`0 0 ${COLS} ${ROWS}`}
-              style={{ position: "", inset: 0, width: "100%", height: "auto", overflow: "visible" }}
-              ref={svgRef}
-            >
-              <defs>
-                <linearGradient id="foundGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style={{ stopColor: "rgba(22, 163, 74, 0.2)", stopOpacity: 1 }} />
-                  <stop offset="100%" style={{ stopColor: "rgba(134, 239, 172, 0.3)", stopOpacity: 1 }} />
-                </linearGradient>
-              </defs>
-              {Array.from({ length: ROWS }).map((_, r) => (
-                Array.from({ length: COLS }).map((__, c) => {
-                  const isFound = rings.some((ring) => ring.x <= c && c < ring.x + ring.w && ring.y <= r && r < ring.y + ring.h);
-                  return (
-                    <g key={`cell-${r}-${c}`}>
-                      {isFound && (
-                        <rect
-                          x={c}
-                          y={r}
-                          width={1}
-                          height={1}
-                          fill="url(#foundGradient)"
-                          stroke="rgba(22, 163, 74, 0.4)"
-                          strokeWidth={0.02}
-                          rx={0.5}
-                          ry={0.5}
-                        />
-                      )}
-                      <text
-                        x={c + 0.5}
-                        y={r + 0.5}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        style={{
-                          fontSize: 0.56,
-                          fontWeight: 700,
-                          fill: isFound ? "rgb(22, 163, 74)" : "#0f172a",
-                        }}
-                      >
-                        {puzzle.grid[r][c]}
-                      </text>
-                    </g>
-                  );
-                })
-              ))}
-              <g>
-                {dragCells.map(({ r, c }, i) => (
-                  <rect
-                    key={`sel-${r}-${c}-${i}`}
-                    x={c + 0.08}
-                    y={r + 0.18}
-                    width={0.84}
-                    height={0.64}
-                    rx={0.18}
-                    ry={0.18}
-                    fill="rgba(22,163,74,0.18)"
-                    stroke="rgba(22,163,74,0.6)"
-                    strokeWidth={0.06}
-                  />
-                ))}
-              </g>
-              <g>
-                {Array.from({ length: ROWS }).map((_, r) => (
-                  Array.from({ length: COLS }).map((__, c) => (
-                    <rect
-                      key={`hot-${r}-${c}`}
-                      x={c}
-                      y={r}
-                      width={1}
-                      height={1}
-                      fill="transparent"
-                      onMouseDown={() => onDown(r, c)}
-                      onMouseMove={(e) => {
-                        if (e.buttons === 1) onEnter(r, c);
-                      }}
-                      onTouchStart={(e) => {
-                        e.preventDefault();
-                        onDown(r, c);
-                      }}
-                      onTouchMove={(e) => {
-                        const svg = svgRef.current || e.currentTarget.ownerSVGElement;
-                        const box = svg.getBoundingClientRect();
-                        const t = e.touches[0];
-                        const x = ((t.clientX - box.left) / box.width) * COLS;
-                        const y = ((t.clientY - box.top) / box.height) * ROWS;
-                        const rr = Math.max(0, Math.min(ROWS - 1, Math.floor(y)));
-                        const cc = Math.max(0, Math.min(COLS - 1, Math.floor(x)));
-                        onEnter(rr, cc);
-                      }}
-                    />
-                  ))
-                ))}
-              </g>
-            </svg>
-          </div> */}
-          <div
-  className="relative  rounded-xl flex gap-[0.1rem]"
-  style={{
-    width: isMobile ? "100%" : boardW * 0.8,
-    height: isMobile ? "70%" : isTablet ? boardH * 1 :boardH * 0.8,
-    // background: GRID_TINTS[levelIdx % GRID_TINTS.length],
-    // background: "#F5DEB3",
-    backgroundImage:'url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/wordBg.jpg)',
-    display: "grid",
-    gridTemplateColumns: `repeat(${COLS}, 1fr)`,
-    gridTemplateRows: `repeat(${ROWS}, 1fr)`,
-    padding:'1rem'
-  }}
-  onMouseLeave={() => setDrag(null)}
->
-{Array.from({ length: ROWS }).map((_, r) =>
-  Array.from({ length: COLS }).map((__, c) => {
-    const isFound = rings.some(
-      (ring) =>
-        ring.x <= c &&
-        c < ring.x + ring.w &&
-        ring.y <= r &&
-        r < ring.y + ring.h
-    );
-// console.log(isFound,"isFound")
-    // ✅ Now r and c exist here
-    const isDraggingHere = dragCells.some(
-      (p) => p.r === r && p.c === c
-    );
+            {Array.from({ length: ROWS }).map((_, r) =>
+              Array.from({ length: COLS }).map((__, c) => {
+                const isFound = rings.some(
+                  (ring) =>
+                    ring.x <= c &&
+                    c < ring.x + ring.w &&
+                    ring.y <= r &&
+                    r < ring.y + ring.h
+                );
+                const foundRing = rings.find(
+                  (ring) =>
+                    ring.x <= c &&
+                    c < ring.x + ring.w &&
+                    ring.y <= r &&
+                    r < ring.y + ring.h
+                );
+                const foundColor = foundRing?.color || "#FF8652";
+                // console.log(isFound,"isFound")
+                // ✅ Now r and c exist here
+                const isDraggingHere = dragCells.some(
+                  (p) => p.r === r && p.c === c
+                );
 
-    const letter = puzzle.grid[r][c];
+                const letter = puzzle.grid[r][c];
 
-    return (
-      <div
-        key={`cell-${r}-${c}`}
-        className="flex items-center justify-center font-bold border border-white bg-amber-800"
-        style={{
-          fontSize: "1.5rem",
-          borderRadius: "50px",
-          userSelect: "none",
-          background: isFound
-            // ? "linear-gradient(135deg, rgba(22,163,74,0.2), rgba(134,239,172,0.3))"
-            ?"#FF8652"
-            : isDraggingHere
-            // ? "rgba(22,163,74,0.18)"
-            ? "yellow"
-            : "#a56f2a",
-          color: isFound
-            // ? "rgb(22, 163, 74)"
-            ? "white"
-            : isDraggingHere
-            // ? "rgb(21, 128, 61)"
-             ? "black"
-            // : "#0f172a",
-            :"white"
-        }}
-        onMouseDown={() => onDown(r, c)}
-        onMouseMove={(e) => {
-          if (e.buttons === 1) onEnter(r, c);
-        }}
-        onTouchStart={(e) => {
-          e.preventDefault();
-          onDown(r, c);
-        }}
-        onTouchMove={(e) => {
-          const box = e.currentTarget.parentElement.getBoundingClientRect();
-          const t = e.touches[0];
-          const x = ((t.clientX - box.left) / box.width) * COLS;
-          const y = ((t.clientY - box.top) / box.height) * ROWS;
-          const rr = Math.max(0, Math.min(ROWS - 1, Math.floor(y)));
-          const cc = Math.max(0, Math.min(COLS - 1, Math.floor(x)));
-          onEnter(rr, cc);
-        }}
-      >
-        {letter}
-      </div>
-    );
-  })
-)}
+                return (
+                  <div
+                    key={`cell-${r}-${c}`}
+                    className="flex items-center justify-center font-bold border border-white bg-amber-800"
+                    style={{
+                      fontSize: "1.5rem",
+                      borderRadius: "50px",
+                      userSelect: "none",
+                      background: isFound
+                        // ? "linear-gradient(135deg, rgba(22,163,74,0.2), rgba(134,239,172,0.3))"
+                        ? foundColor
+                        : isDraggingHere
+                          // ? "rgba(22,163,74,0.18)"
+                          ? "yellow"
+                          : "#a56f2a",
+                      color: isFound
+                        // ? "rgb(22, 163, 74)"
+                        ? "white"
+                        : isDraggingHere
+                          // ? "rgb(21, 128, 61)"
+                          ? "black"
+                          // : "#0f172a",
+                          : "white"
+                    }}
+                    onMouseDown={() => onDown(r, c)}
+                    onMouseMove={(e) => {
+                      if (e.buttons === 1) onEnter(r, c);
+                    }}
+                    onTouchStart={(e) => {
+                      e.preventDefault();
+                      onDown(r, c);
+                    }}
+                    onTouchMove={(e) => {
+                      const box = e.currentTarget.parentElement.getBoundingClientRect();
+                      const t = e.touches[0];
+                      const x = ((t.clientX - box.left) / box.width) * COLS;
+                      const y = ((t.clientY - box.top) / box.height) * ROWS;
+                      const rr = Math.max(0, Math.min(ROWS - 1, Math.floor(y)));
+                      const cc = Math.max(0, Math.min(COLS - 1, Math.floor(x)));
+                      onEnter(rr, cc);
+                    }}
+                  >
+                    {letter}
+                  </div>
 
-</div>
-  
+                );
+              })
+            )}
+
+          </div>
+
           <div />
           <aside
             style={{
               width: isMobile ? "90%" : sideW,
-              height: isMobile ? "400px" : boardH * 0.8,
+              height: isMobile ? "400px" : boardH * 0.7,
               marginTop: isMobile ? 12 : 0,
               // background: "#ffffff",
-              backgroundImage:'url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/puzzleBg.webp)',
+              backgroundImage: 'url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/puzzleBg.webp)',
               borderRadius: 16,
               padding: 10,
               boxSizing: "border-box",
               boxShadow: "0 8px 20px rgba(0,0,0,.12)",
               display: "grid",
               gridTemplateRows: "auto 1fr",
+              position: "relative"
             }}
           >
+            <small className="absolute top-0 right-0 text-xs px-2 py-1 bg-yellow-800 text-white border border-white rounded-full">
+              {currentSet?.word_list?.[0]?.level || "easy"}
+            </small>
+
+
+
             <div
-  style={{
-    textAlign: "center",
-    fontWeight: 900,
-    marginBottom: isTablet? 1:8,
-    fontSize:isTablet? '1rem':"1.5rem",
-    color: "white",
-    width: "100%",
-    height: 100, // add height so image is visible
-    lineHeight: "80px", // vertically center text
-    backgroundImage: 'url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/board.png)',
-    backgroundSize: "cover", // cover entire div
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center",
-  }}
->
-  Word Set
- 
-</div>
+              style={{
+                textAlign: "center",
+                fontWeight: 900,
+                marginBottom: isTablet ? 1 : 8,
+                fontSize: isTablet ? '1rem' : "1.5rem",
+                color: "white",
+                width: "100%",
+                height: 100, // add height so image is visible
+                lineHeight: "80px", // vertically center text
+                backgroundImage: 'url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/board.png)',
+                backgroundSize: "cover", // cover entire div
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+              }}
+            >
+              Word Set
+            </div>
 
             <div style={{
               overflowY: "auto",

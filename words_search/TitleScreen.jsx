@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-function TitleScreen({ onStart, isLoading, error }) {
+function TitleScreen({ onStart, isLoading, error,role_name,isLiveClass }) {
   const title = "WORD SEARCH";
   const [visibleLetters, setVisibleLetters] = useState(0);
 
@@ -13,6 +13,8 @@ function TitleScreen({ onStart, isLoading, error }) {
     }, 250); // animation speed
     return () => clearInterval(interval);
   }, []);
+
+  const istutor = (!isLiveClass) || (isLiveClass && role_name === "tutor");
 
   return (
     <div
@@ -137,12 +139,12 @@ function TitleScreen({ onStart, isLoading, error }) {
         )}
 
         {/* Button */}
-        <button
+        {istutor && (<button
           onClick={onStart}
           onTouchStart={(e) => {
-    e.stopPropagation(); // Prevent touch event from bubbling to parent handlers
-    onStart();
-  }}
+            e.stopPropagation(); // Prevent touch event from bubbling to parent handlers
+            onStart();
+          }}
           disabled={isLoading || !!error}
           aria-label="Start Word Search Game"
           aria-disabled={isLoading || !!error}
@@ -168,7 +170,7 @@ function TitleScreen({ onStart, isLoading, error }) {
           }}
         >
           Start Game
-        </button>
+        </button>)}
 
         {/* Retry Button for Errors */}
         {error && (

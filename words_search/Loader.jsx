@@ -9,7 +9,7 @@ return(
       display: "grid",
       placeItems: "center",
       background: "rgba(0, 0, 0, 0.7)",
-      zIndex: 20,
+      // zIndex: 20,
     }}
   >
     <div
