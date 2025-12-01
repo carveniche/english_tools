@@ -29,14 +29,7 @@ const CARD_GRADS = [
 const ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 // ======== Test Data for Testing Purposes ========
-const testDataSet = {
-  word_list: [
-    {
-      data_set_id: 1,
-      words: ["VOCABULARY", 'DATASET']
-    }
-  ]
-};
+
 
 // ======== Utils ========
 const shuffle = (arr) => {
@@ -151,10 +144,10 @@ function buildPath(a, b) {
 }
 
 // ======== Component ========
-export default function WordSearch({listingData,isLiveClass,role_name,handleStartGame,isStartedGame,dragElementDataTrack,dragData,handlerClearfunction}) {
-  useEffect(()=>{
-   console.log(listingData,isLiveClass,role_name,"listingDatalistingData")
-  },[listingData])
+export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleSaveResponce, DataSet, listingData, isLiveClass, role_name, handleStartGame, isStartedGame, dragElementDataTrack, dragData, handlerClearfunction }) {
+  useEffect(() => {
+    console.log(listingData, isLiveClass, role_name, "listingDatalistingData")
+  }, [listingData])
   const [screen, setScreen] = useState("title");
   const [handleBack, setHandleBack] = useState(false)
   const [levelIdx, setLevelIdx] = useState(0);
@@ -216,97 +209,18 @@ export default function WordSearch({listingData,isLiveClass,role_name,handleStar
   useEffect(() => {
     //   setLoading(true);
     //   // For testing, initialize with testDataSet
-    setToolData(testDataSet);
-    setCurrentSet(testDataSet);
-    console.log(generatePuzzleFromSet(testDataSet.word_list[0].words), "000000000")
+    setToolData(DataSet);
+    setCurrentSet(DataSet);
+
     // setPuzzle(generatePuzzleFromSet(testDataSet.word_list[0].words));
     setPuzzle(listingData)
     setLoading(false);
 
-    //   // Production: Set up window.wordSearchTool to receive backend data
-    window.wordSearchTool = (data) => {
-      console.log("window.wordSearchTool received data:", data);
-      if (
-        data &&
-        data.data_set &&
-        Array.isArray(data.data_set) &&
-        data.data_set[0] &&
-        data.data_set[0].word_list &&
-        Array.isArray(data.data_set[0].word_list) &&
-        data.data_set[0].word_list[0]?.words?.length > 0
-      ) {
-        const filteredData = {
-          word_list: [
-            {
-              ...data.data_set[0].word_list[0],
-              words: data.data_set[0].word_list[0].words.filter((word) => word.length <= 10),
-            }
-          ],
-        };
-        setToolData(filteredData);
-        setCurrentSet(filteredData);
-        // setPuzzle(generatePuzzleFromSet(filteredData.word_list[0].words));
-        setLoading(false);
-      } else {
-        console.error("Invalid toolData structure:", data);
-        setToolData(null);
-        setCurrentSet(null);
-        setPuzzle(null);
-        setLoading(false);
-      }
-    };
-    return () => {
-      window.wordSearchTool = undefined;
-    };
-  }, []);
-  // testing ----
-  // Replace your initialization useEffect with this:
-  // useEffect(() => {
-  //   setLoading(true);
 
-  //   // Set up the callback immediately
-  //   window.wordSearchTool = (data) => {
-  //     console.log("Received data:", data);
+  }, [listingData, DataSet]);
 
-  //     // Handle both possible data structures
-  //     let words = [];
 
-  //     if (data?.data_set?.[0]?.word_list?.[0]?.words) {
-  //       words = data.data_set[0].word_list[0].words;
-  //     } else if (data?.word_list?.[0]?.words) {
-  //       words = data.word_list[0].words;
-  //     }
 
-  //     if (words.length > 0) {
-  //       const filteredData = {
-  //         word_list: [{
-  //           data_set_id: 1,
-  //           words: words.filter(word => word && word.length <= 10)
-  //         }]
-  //       };
-
-  //       setToolData(filteredData);
-  //       setCurrentSet(filteredData);
-  //       setPuzzle(generatePuzzleFromSet(filteredData.word_list[0].words));
-  //     } else {
-  //       // Fallback to test data
-  //       // setToolData(testDataSet);
-  //       // setCurrentSet(testDataSet);
-  //       // setPuzzle(generatePuzzleFromSet(testDataSet.word_list[0].words));
-  //     }
-
-  //     setLoading(false);
-  //   };
-
-  //   // For testing, use test data immediately
-  //   // window.wordSearchTool(testDataSet);
-
-  //   return () => {
-  //     window.wordSearchTool = undefined;
-  //   };
-  // }, []);
-
-  // Update puzzle when level changes
   useEffect(() => {
     if (!toolData || !hasValidData || !currentSet) return;
     // setPuzzle(generatePuzzleFromSet(currentSet.word_list[0].words));
@@ -346,7 +260,8 @@ export default function WordSearch({listingData,isLiveClass,role_name,handleStar
     setCelebrate(true);
     const level = currentSet.word_list[0].level
     const currentDataSetId = currentSet.word_list[0].data_set_id;
-    console.log("submit calling------")
+    console.log("submit calling------", level, currentDataSetId, seconds)
+    HandleSaveResponce(currentDataSetId, seconds, level)
     submitTimespent(currentDataSetId, seconds, level);
 
   }, [finished]);
@@ -357,18 +272,18 @@ export default function WordSearch({listingData,isLiveClass,role_name,handleStar
   const onDown = (r, c) => setDrag({ active: true, start: { r, c }, end: { r, c } });
   const onEnter = (r, c) => setDrag((d) => (d?.active ? { ...d, end: { r, c } } : d));
   const onUp = () => {
-    if(role_name ==="tutor"){
+    if (role_name === "tutor") {
       // console.log("wordSearchdatatrack break")
-       }
+    }
     if (!drag?.active || !puzzle) return;
     const { start, end } = drag;
     if (!start || !end) {
       setDrag(null);
       return;
     }
-    if(role_name !=="tutor" && isLiveClass===true){
+    if (role_name !== "tutor" && isLiveClass === true) {
       dragElementDataTrack(drag);
-   }
+    }
     const isStraight = start.r === end.r || start.c === end.c;
     const isDiag = Math.abs(start.r - end.r) === Math.abs(start.c - end.c);
     const forward = end.r >= start.r;
@@ -403,19 +318,19 @@ export default function WordSearch({listingData,isLiveClass,role_name,handleStar
     console.log("handleBack UPDATED to:", handleBack, "on finish:", finished);
   }, [handleBack, finished]);
   useEffect(() => {
-    if(role_name === "tutor" && isLiveClass === true && dragData){
-      console.log(dragData,"wordSearchdatatrack")
+    if (role_name === "tutor" && isLiveClass === true && dragData) {
+      // console.log(dragData,"wordSearchdatatrack")
       setDrag(dragData)
-    
-      handlerClearfunction();
-    }
-  },[dragData])
 
-  useEffect(()=>{
-    if(isLiveClass === true && role_name === "tutor"){
+      
+    }
+  }, [dragData])
+
+  useEffect(() => {
+    if (isLiveClass === true && role_name === "tutor") {
       onUp()
     }
-  },[drag])
+  }, [drag])
 
 
   const fetchNewWords = async (data_set_id, level) => {
@@ -483,10 +398,14 @@ export default function WordSearch({listingData,isLiveClass,role_name,handleStar
     const currentDataSetId = currentSet.word_list[0].data_set_id;
     console.log("handleNextLevel: Submitting timespent for data_set_id:", currentDataSetId);
     // submitTimespent(currentDataSetId, seconds,level);
+    if(role_name === "tutor"){
 
+      HandleNextQuestion(currentDataSetId, level)
+    }
     console.log("handleNextLevel: Fetching new words for data_set_id:", currentDataSetId);
     // const newData = await fetchNewWords(currentDataSetId);
     // fetchNewWords(currentDataSetId);
+
     const newData = await fetchNewWords(currentDataSetId, level);
 
     console.log("handleNextLevel: Received newData:", newData);
@@ -505,6 +424,19 @@ export default function WordSearch({listingData,isLiveClass,role_name,handleStar
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (isNextQuestion) {
+      console.log(isNextQuestion,"isNextQuestion")
+      if(role_name !== "tutor"){
+
+        handleNextLevel();
+        handlerClearfunction();
+      }
+    }
+  }, [isNextQuestion])
+
+
 
   // Handle close button
   const handleCloseButton = () => {
@@ -574,20 +506,20 @@ export default function WordSearch({listingData,isLiveClass,role_name,handleStar
     };
   }, []);
 
-  const handleStart =()=>{
-      setSeconds(0);
-      setTimerActive(true);
-      setScreen("play");
-      if(role_name === "tutor" && isLiveClass){
-        handleStartGame()
-      }
+  const handleStart = () => {
+    setSeconds(0);
+    setTimerActive(true);
+    setScreen("play");
+    if (role_name === "tutor" && isLiveClass) {
+      handleStartGame()
+    }
   }
 
-  useEffect(()=>{
-    if(isStartedGame && role_name !== "tutor" && isLiveClass){
+  useEffect(() => {
+    if (isStartedGame && role_name !== "tutor" && isLiveClass) {
       handleStart()
     }
-  },[isStartedGame])
+  }, [isStartedGame])
   // const isDraggingHere = dragCells.some(p => p.r === r && p.c === c);
   return (
     <div
@@ -641,7 +573,7 @@ export default function WordSearch({listingData,isLiveClass,role_name,handleStar
         <TitleScreen
           onStart={handleStart}
           isLiveClass={isLiveClass}
-      role_name={role_name}
+          role_name={role_name}
 
         />
       )}
@@ -847,7 +779,7 @@ export default function WordSearch({listingData,isLiveClass,role_name,handleStar
               <Confetti />
               <div style={{ position: "relative", display: "grid", gap: 16, placeItems: "center" }}>
                 <StarsRow />
-                <button
+                {role_name === "tutor" && (<button
                   onTouchStart={handleNextLevel}
                   onClick={handleNextLevel}
                   style={{
@@ -871,7 +803,7 @@ export default function WordSearch({listingData,isLiveClass,role_name,handleStar
                   }}
                 >
                   🎉 Next Level
-                </button>
+                </button>)}
               </div>
             </div>
           )}
