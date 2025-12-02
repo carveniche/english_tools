@@ -180,10 +180,11 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
   const boardH = cellPx * ROWS;
   // const level_tag =currentSet.word_list[0].level
   const hasValidData = toolData && toolData.word_list?.[0]?.words?.length > 0;
-
+  const finalTimeRef = useRef(0);
   // Timer for elapsed time
   useEffect(() => {
     let interval;
+    console.log(timerActive, "timerActivetimerActive")
     if (timerActive) {
       interval = setInterval(() => setSeconds((prev) => prev + 1), 1000);
     }
@@ -195,10 +196,11 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
     []
   );
 
+  
   useEffect(() => {
     // setPuzzle(ans)
-    console.log(listingData, "sdd-------")
-  }, [listingData])
+    finalTimeRef.current=seconds
+  }, [seconds])
 
 
   useEffect(() => {
@@ -209,6 +211,9 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
   useEffect(() => {
     //   setLoading(true);
     //   // For testing, initialize with testDataSet
+    console.log("kjj")
+    setTimerActive(true)
+    setSeconds(0)
     setToolData(DataSet);
     setCurrentSet(DataSet);
 
@@ -260,14 +265,11 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
     setCelebrate(true);
     const level = currentSet.word_list[0].level
     const currentDataSetId = currentSet.word_list[0].data_set_id;
-    console.log("submit calling------", level, currentDataSetId, seconds)
-    HandleSaveResponce(currentDataSetId, seconds, level)
+    console.log("submit calling ",  seconds)
+    HandleSaveResponce(currentDataSetId, seconds, level,"completed")
     submitTimespent(currentDataSetId, seconds, level);
 
   }, [finished]);
-  useEffect(() => {
-    // console.log("handleBack UPDATED to:", handleBack);  
-  }, [handleBack]);
 
   const onDown = (r, c) => setDrag({ active: true, start: { r, c }, end: { r, c } });
   const onEnter = (r, c) => setDrag((d) => (d?.active ? { ...d, end: { r, c } } : d));
@@ -322,7 +324,7 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
       // console.log(dragData,"wordSearchdatatrack")
       setDrag(dragData)
 
-      
+
     }
   }, [dragData])
 
@@ -386,19 +388,21 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
   // Handle Next button
   const handleNextLevel = async () => {
 
-    if (!currentSet) {
-      console.error("No currentSet available");
-      setLoading(false);
-      return;
-    }
+    // if (!currentSet) {
+    //   console.error("No currentSet available");
+    //   setLoading(false);
+    //   return;
+    // }
 
-    setLoading(true);
-    setCelebrate(false);
+    // setLoading(true);
+    // setCelebrate(false);
+    setTimerActive(true)
+    setSeconds(0)
     const level = currentSet.word_list[0].level
     const currentDataSetId = currentSet.word_list[0].data_set_id;
     console.log("handleNextLevel: Submitting timespent for data_set_id:", currentDataSetId);
     // submitTimespent(currentDataSetId, seconds,level);
-    if(role_name === "tutor"){
+    if (role_name === "tutor") {
 
       HandleNextQuestion(currentDataSetId, level)
     }
@@ -406,43 +410,37 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
     // const newData = await fetchNewWords(currentDataSetId);
     // fetchNewWords(currentDataSetId);
 
-    const newData = await fetchNewWords(currentDataSetId, level);
 
-    console.log("handleNextLevel: Received newData:", newData);
-    if (newData) {
-      setLevelIdx((prev) => {
-        console.log("handleNextLevel: Incrementing levelIdx to:", prev + 1);
-        return prev + 1;
-      });
-      // setPuzzle(generatePuzzleFromSet(newData.word_list[0].words));
-      setFound(new Set());
-      setRings([]);
-      setElapsed(0);
-      setSeconds(0);
-      setTimerActive(true);
-      setHandleBack(false)
-    }
-    setLoading(false);
+    // setLoading(false);
   };
 
   useEffect(() => {
     if (isNextQuestion) {
-      console.log(isNextQuestion,"isNextQuestion")
-      if(role_name !== "tutor"){
-
+      console.log(isNextQuestion, "isNextQuestion")
+      if (role_name !== "tutor") {
+        console.log("sdjfksldjflskdjflksjfs")
+        setTimerActive(true)
+        setSeconds(0)
         handleNextLevel();
         handlerClearfunction();
       }
     }
   }, [isNextQuestion])
 
-
+  useEffect(() => {
+    return (() => {
+      const level = DataSet?.word_list?.[0]?.level
+      const currentDataSetId = DataSet?.word_list?.[0]?.data_set_id;
+      HandleSaveResponce(currentDataSetId, finalTimeRef.current, level,"inprogress")
+      console.log("submit calling------", level, currentDataSetId, finalTimeRef)
+    })
+  }, [])
 
   // Handle close button
   const handleCloseButton = () => {
     // setStoredTime(seconds)  // REMOVE: Already captured on finish
     console.log("Close Clicked - celebrate:", celebrate, "handleBack:", handleBack, "seconds:", seconds, "storedTime:", storedTime);
-    const level_two = currentSet.word_list[0].level
+    const level_two = currentSet?.word_list?.[0]?.level
     if (!currentSet) return;
     const formData = new FormData();
     formData.append("data_set_id", currentSet.word_list[0].data_set_id);
@@ -467,6 +465,14 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
     setScreen("title");
     //  setTimerActive(false);
   };
+
+  useEffect(() => {
+    return (() => {
+      console.log("Close Clicked - celebrate:", celebrate, "handleBack:", handleBack, "seconds:", seconds, "storedTime:", storedTime);
+
+    })
+  }, [])
+
 
   useEffect(() => {
     const closeButton = document.getElementById("closing-btn-in-rails");
@@ -640,6 +646,7 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
                       fontSize: "1.5rem",
                       borderRadius: "50px",
                       userSelect: "none",
+                      cursor: role_name === "tutor" ? "not-allowed" : "pointer",
                       background: isFound
                         // ? "linear-gradient(135deg, rgba(22,163,74,0.2), rgba(134,239,172,0.3))"
                         ? foundColor
@@ -656,15 +663,21 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
                           // : "#0f172a",
                           : "white"
                     }}
-                    onMouseDown={() => onDown(r, c)}
+                    onMouseDown={() => {
+                      if (role_name === "tutor") return;
+                      onDown(r, c)
+                    }}
                     onMouseMove={(e) => {
+                      if (role_name === "tutor") return;
                       if (e.buttons === 1) onEnter(r, c);
                     }}
                     onTouchStart={(e) => {
+                      if (role_name === "tutor") return;
                       e.preventDefault();
                       onDown(r, c);
                     }}
                     onTouchMove={(e) => {
+                      if (role_name === "tutor") return;
                       const box = e.currentTarget.parentElement.getBoundingClientRect();
                       const t = e.touches[0];
                       const x = ((t.clientX - box.left) / box.width) * COLS;
