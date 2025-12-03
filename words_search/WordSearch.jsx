@@ -428,7 +428,7 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
 // Update ref whenever DataSet changes
 useEffect(() => {
   latestDataSetRef.current = DataSet;
-}, [DataSet]);
+}, [DataSet]); 
 
   useEffect(() => {
     return () => {
