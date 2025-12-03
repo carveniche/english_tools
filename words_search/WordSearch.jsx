@@ -145,9 +145,7 @@ function buildPath(a, b) {
 
 // ======== Component ========
 export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleSaveResponce, DataSet, listingData, isLiveClass, role_name, handleStartGame, isStartedGame, dragElementDataTrack, dragData, handlerClearfunction }) {
-  useEffect(() => {
-    console.log(listingData, isLiveClass, role_name, "listingDatalistingData")
-  }, [listingData])
+  
   const [screen, setScreen] = useState("title");
   const [handleBack, setHandleBack] = useState(false)
   const [levelIdx, setLevelIdx] = useState(0);
@@ -184,7 +182,7 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
   // Timer for elapsed time
   useEffect(() => {
     let interval;
-    console.log(timerActive, "timerActivetimerActive")
+    // console.log(timerActive, "timerActivetimerActive")
     if (timerActive) {
       interval = setInterval(() => setSeconds((prev) => prev + 1), 1000);
     }
@@ -211,7 +209,7 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
   useEffect(() => {
     //   setLoading(true);
     //   // For testing, initialize with testDataSet
-    console.log("kjj")
+    // console.log("kjj")
     setTimerActive(true)
     setSeconds(0)
     setToolData(DataSet);
@@ -265,7 +263,7 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
     setCelebrate(true);
     const level = currentSet.word_list[0].level
     const currentDataSetId = currentSet.word_list[0].data_set_id;
-    console.log("submit calling ",  seconds)
+    // console.log("submit calling ",  seconds)
     HandleSaveResponce(currentDataSetId, seconds, level,"completed")
     submitTimespent(currentDataSetId, seconds, level);
 
@@ -316,9 +314,7 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
     }
     setDrag(null);
   };
-  useEffect(() => {
-    console.log("handleBack UPDATED to:", handleBack, "on finish:", finished);
-  }, [handleBack, finished]);
+
   useEffect(() => {
     if (role_name === "tutor" && isLiveClass === true && dragData) {
       // console.log(dragData,"wordSearchdatatrack")
@@ -400,13 +396,13 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
     setSeconds(0)
     const level = currentSet.word_list[0].level
     const currentDataSetId = currentSet.word_list[0].data_set_id;
-    console.log("handleNextLevel: Submitting timespent for data_set_id:", currentDataSetId);
+    // console.log("handleNextLevel: Submitting timespent for data_set_id:", currentDataSetId);
     // submitTimespent(currentDataSetId, seconds,level);
     if (role_name === "tutor") {
 
       HandleNextQuestion(currentDataSetId, level)
     }
-    console.log("handleNextLevel: Fetching new words for data_set_id:", currentDataSetId);
+    // console.log("handleNextLevel: Fetching new words for data_set_id:", currentDataSetId);
     // const newData = await fetchNewWords(currentDataSetId);
     // fetchNewWords(currentDataSetId);
 
@@ -416,9 +412,9 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
 
   useEffect(() => {
     if (isNextQuestion) {
-      console.log(isNextQuestion, "isNextQuestion")
+      // console.log(isNextQuestion, "isNextQuestion")
       if (role_name !== "tutor") {
-        console.log("sdjfksldjflskdjflksjfs")
+        // console.log("sdjfksldjflskdjflksjfs")
         setTimerActive(true)
         setSeconds(0)
         handleNextLevel();
@@ -427,13 +423,29 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
     }
   }, [isNextQuestion])
 
+  const latestDataSetRef = useRef(null);
+
+// Update ref whenever DataSet changes
+useEffect(() => {
+  latestDataSetRef.current = DataSet;
+}, [DataSet]);
+
   useEffect(() => {
-    return (() => {
-      const level = DataSet?.word_list?.[0]?.level
-      const currentDataSetId = DataSet?.word_list?.[0]?.data_set_id;
-      HandleSaveResponce(currentDataSetId, finalTimeRef.current, level,"inprogress")
-      console.log("submit calling------", level, currentDataSetId, finalTimeRef)
-    })
+    return () => {
+      const latest = latestDataSetRef.current;
+  
+      const level = latest?.word_list?.[0]?.level;
+      const currentDataSetId = latest?.word_list?.[0]?.data_set_id;
+  
+      // console.log("Cleanup running with latest level:", level);
+  
+      HandleSaveResponce(
+        currentDataSetId,
+        finalTimeRef.current,
+        level,
+        "inprogress"
+      );
+    };
   }, [])
 
   // Handle close button
@@ -466,12 +478,7 @@ export default function WordSearch({ isNextQuestion, HandleNextQuestion, HandleS
     //  setTimerActive(false);
   };
 
-  useEffect(() => {
-    return (() => {
-      console.log("Close Clicked - celebrate:", celebrate, "handleBack:", handleBack, "seconds:", seconds, "storedTime:", storedTime);
-
-    })
-  }, [])
+ 
 
 
   useEffect(() => {
