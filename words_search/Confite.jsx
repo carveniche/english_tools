@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 
 function Confetti(){
-  const bits = useMemo(()=> Array.from({length: 50}).map((_,i)=>({ left: Math.random()*100, delay: Math.random()*0.8, dur: 1+Math.random()*1.2, size: 6+Math.random()*6, hue: Math.floor(Math.random()*360) })),[]);
+  const bits = useMemo(()=> Array.from({length: 20}).map((_,i)=>({ left: Math.random()*100, delay: Math.random()*0.8, dur: 1+Math.random()*1.2, size: 6+Math.random()*6, hue: Math.floor(Math.random()*360) })),[]);
   return (
     <div  style={{position:'absolute', inset:0, overflow:'hidden', pointerEvents:'none'}}>
       {bits.map((b,i)=> (
