@@ -82,7 +82,7 @@ const stopTimer = () => {
             setCurrentLevel(null);
           }}/> },
     { id: 4, name: "Level 4", 
-      comp:"Hear & Tab all letter's",
+      comp:"Hear & Tap all letters",
       image:"https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/stars.png",
       render: () => <LevelFour timeSpent={timeSpent}
           stopTimer={stopTimer}
@@ -92,11 +92,12 @@ const stopTimer = () => {
             setCurrentLevel(null);
           }}/> },
     { id: 5, name: "Level 5",
-      comp:"Math the letter",
+      comp:"Match the letter",
       image:"https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/letterselect.png",
+      
        render: () => <LevelFive timeSpent={timeSpent}
           stopTimer={stopTimer}
-          comp={'Math the letter'}
+          comp={'Match the letter'}
           onGoHome={() => {
             stopTimer();
             setCurrentLevel(null);
@@ -135,7 +136,8 @@ const stopTimer = () => {
       </motion.div> */}
 
       {/* Container */}
-      <div className="relative z-10 w-[90%] text-center flex flex-col items-center gap-6 p-6 rounded-3xl bg-white/70 backdrop-blur-xl ">
+      <div className="relative z-10 w-[90%] text-center flex flex-col items-center gap-6 p-6 rounded-3xl bg-white/70 backdrop-blur-xl "
+      >
         <h2 className="text-xl md:text-xl font-extrabold  drop-shadow">
           Select Your Level
         </h2>
@@ -165,7 +167,9 @@ const stopTimer = () => {
                 src={data.image}/>
              
             </motion.div>
-            <div className="relative flex justify-center items-center p-[1rem]">
+            <div className="relative flex justify-center items-center p-[1rem]"
+              onClick={() => setCurrentLevel(data.id)}
+            >
              <img src="https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/snake.png" alt="" className="absolute w-full h-full z-[1]" />
              <span className=" z-[2] text-[#fff] w-[45%] text-[0.6rem] mx-auto text-center">{data.comp}</span>
 

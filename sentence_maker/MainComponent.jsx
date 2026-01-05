@@ -302,26 +302,26 @@ export default function SentenceFun({ data }) {
   //   return <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center p-4">No items found.</div>;
   // }
 
-  if (screen === "complete") {
-    // if ("complete")
+  // if (screen === "complete") {
+  //   // if ("complete")
 
-    return (
-      <div className="min-h-screen  p-4 flex items-center justify-center">
-        <div className="text-center max-w-2xl mx-auto bg-[#85e785] backdrop-blur-sm rounded-3xl  p-8 md:p-12 border border-gray-200">
-          <p className="text-xl text-gray-700 mb-8">Congratulations !</p>
+  //   return (
+  //     <div className="h-[30vh] w-full   p-4 flex items-center justify-center">
+  //       <div className="text-center max-w-2xl w-full h-full mx-auto bg-[#85e785] backdrop-blur-sm rounded-3xl  p-8 md:p-12 border border-gray-200">
+  //         <p className="text-xl text-gray-700 mb-8">Congratulations !</p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={handle_next_level_data}
-              className="px-8 py-4 rounded-2xl bg-[#ff3535d9]  active:scale-95 transition-all duration-300 text-white font-bold text-lg "
-            >
-              Next sentence →
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  //         <div className="flex flex-col sm:flex-row gap-4 justify-center">
+  //           <button
+  //             onClick={handle_next_level_data}
+  //             className="px-8 py-4 rounded-2xl bg-[#ff3535d9]  active:scale-95 transition-all duration-300 text-white font-bold text-lg "
+  //           >
+  //             Next sentence →
+  //           </button>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
       if(isCompleted || isWordsCompleted) {
         return <DailyLimitCard
          isCompleted={isCompleted}
@@ -342,7 +342,7 @@ export default function SentenceFun({ data }) {
   if (!stepOptions) {
     return (
       <>
-        <p>Loading</p>
+        <p className="text-center mx-auto h4-large">Loading</p>
       </>
     );
   }
@@ -355,19 +355,45 @@ export default function SentenceFun({ data }) {
   };
   return (
     <>
-    <div className="min-h-screen  p-4 md:p-6 ">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen  p-4 md:p-6 bg-cover bg-center"
+     style={{
+                    backgroundImage:
+                      "url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/stackBg.png)",
+                  }}
+    >
+      <div className="max-w-6xl mx-auto relative"
+      >
+        { screen === "complete" && (
+        <div className="h-full w-full   p-4 flex items-center justify-center absolute">
+          <div className="z-[2] bg-black opacity-[0.5] w-full h-full absolute"></div>
+        <div className="text-center max-w-2xl w-full h-full mx-auto rounded-3xl  p-8 md:p-12  z-10 flex justify-center items-center flex-col">
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={handle_next_level_data}
+              className="px-8 py-4 rounded-2xl  active:scale-95 transition-all duration-300 text-white font-bold text-lg w-[10rem] md:w-[15rem]"
+            >
+              <img src="https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/stacknext.png" alt="" className="w-full h-full "  />
+            </button>
+          </div>
+        </div>
+      </div>
+       ) }
         {/* Main Game Area */}
         <div className=" rounded-3xl w-full  overflow-hidden flex justify-center items-center flex-col gap-[1rem] ">
           {/* Step Indicator */}
-          <div className=" p-[0.5rem] w-full  rounded-3xl bg-[#15ccbe]">
+          <div className=" p-[0.5rem] w-full  rounded-3xl">
             <div className="flex justify-between items-center">
               <div className="w-full flex flex-col justify-center  items-center gap-[1rem] relative">
                 {/* <h3 className="text-xl font-bold text-gray-700  text-center">
                     {stepLabels[step]}
                   </h3> */}
 
-                <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-6 w-full shadow-inner">
+                <div className=" rounded-2xl p-6 w-full shadow-inner bg-cover bg-center"
+                 style={{
+                    backgroundImage:
+                      "url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/stackmaking.png)",
+                  }}>
                   <div className="flex flex-wrap justify-center gap-3 items-center ">
                     <span
                       className={`text-2xl md:text-3xl font-bold px-4 py-2 rounded-xl ${
@@ -416,7 +442,10 @@ export default function SentenceFun({ data }) {
             </div>
           </div>
 
-          <div className="w-full p-4 md:p-8 bg-[rgb(239,205,255)] rounded-3xl">
+          <div className="w-full p-4 md:p-8 bg-none rounded-3xl bg-auto bg-no-repeat bg-center"
+          style={{
+            backgroundImage:'url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/insideBg.png)'
+          }}>
             <div className="flex flex-col lg:flex-row gap-8">
               {/* Left Column - Image & Sentence */}
               <div className="lg:w-1/2 flex flex-col items-center">
@@ -456,11 +485,11 @@ export default function SentenceFun({ data }) {
               <div className="lg:w-1/2">
                 <div className="h-full flex flex-col">
                   <div className="mb-6">
-                    <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                    <h3 className="text-2xl font-bold text-white mb-2">
                       Select the{" "}
                       {step === 1 ? "subject" : step === 2 ? "verb" : "object"}
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-white">
                       Click on the correct option to build a proper sentence
                     </p>
                   </div>
@@ -540,34 +569,39 @@ export default function SentenceFun({ data }) {
               </div>
             </div>
           </div>
-          <div className="w-full flex justify-center space-x-4 md:space-x-8">
-            {[1, 2, 3, 4].map((s) => (
-              <div key={s} className="flex flex-col items-center">
-                <div
-                  className={`
-                    w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold text-lg md:text-xl
-                    ${
-                      step >= s
-                        ? " text-purple-600  bg-green-200"
-                        : "bg-white/20 text-white"
-                    }
-                    ${step === s ? "ring-4 ring-white/50" : ""}
-                    transition-all duration-300
-                  `}
-                >
-                  {s}
-                </div>
-                <span
-                  className={`text-sm mt-2 font-medium ${
-                    step === s ? "text-purple-600" : "text-white/70"
-                  }`}
-                >
-                  {/* {stepLabels[s].split(' ')[0]} */}
-                  {stepLabels[s].split(" ")[1]}
-                </span>
-              </div>
-            ))}
-          </div>
+        <div className="w-full flex justify-center space-x-4 md:space-x-8">
+  {[1, 2, 3, 4]
+    .filter((s) => s <= step)
+    .map((s) => (
+      <div key={s} className="flex flex-col items-center">
+        
+        <div
+          className={`
+            w-10 h-10 md:w-12 md:h-12 rounded-full
+            flex items-center justify-center
+            font-bold text-lg md:text-xl
+            transition-all duration-300
+
+            ${step === s ? "ring-4 ring-white/50 scale-110" : ""}
+          `}
+        >
+          <img
+            src={s === 4 ? "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/compltestacklevel.png" : "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/steplevel.png"}
+            className="w-[2rem] h-[2rem]"
+          />
+        </div>
+
+        <span
+          className={`text-sm mt-2 font-medium transition-opacity duration-300 ${
+            step >= s ? "text-[#FFD93B]" : "text-white/60"
+          }`}
+        >
+          {stepLabels[s].split(" ")[1]}
+        </span>
+      </div>
+    ))}
+</div>
+
         </div>
       </div>
     </div>

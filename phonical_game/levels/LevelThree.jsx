@@ -157,7 +157,7 @@ function LevelThree({onGoHome,timeSpent,comp}) {
                 key={U}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => onDrop(e.dataTransfer.getData("text/plain"), U)}
-                className={`relative grid aspect-square place-items-center rounded-3xl bg-gray-600 ${
+                className={`relative grid aspect-square place-items-center justify-center items-center rounded-3xl bg-gray-600 ${
                   Uppercase[i % Uppercase.length]
                 } text-[1.5rem] md:text-3xl font-extrabold text-white shadow-xl transition-all duration-300 hover:scale-105 ${
                   matched[U]
@@ -191,7 +191,7 @@ function LevelThree({onGoHome,timeSpent,comp}) {
                 whileDrag={{ scale: 1.15 }}
                 whileHover={{ scale: 1.08 }}
                 onDragStart={(e) => e.dataTransfer.setData("text/plain", l)}
-                className={`grid aspect-square place-items-center rounded-3xl bg-gradient-to-br ${
+                className={`grid aspect-square place-items-center justify-center items-center rounded-3xl bg-gradient-to-br ${
                   GRAD[(i + 3) % GRAD.length]
                 } text-[1.5rem] md:text-3xl font-extrabold text-white cursor-grab shadow-xl active:scale-90`}
               >

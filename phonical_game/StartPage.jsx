@@ -22,16 +22,18 @@ function StartPage() {
 
   return (
     <>
-      {startThePage ? (
+      {startThePage? (
         // <FindTheWords data={sendingBackendData}/>
         // <MainComponent/>
         <MainSentenceMaker/>
         // <NewPhonicalMaker/>
       ) : (
-        <div className="relative  w-full h-[70vh] flex justify-center items-center flex-col gap-[2rem] xl:flex-row">
+        <div className="relative  w-full h-[75vh] flex justify-center items-center flex-col gap-[2rem] xl:flex-row">
              <div
     className="absolute inset-0 bg-cover bg-center"
-    style={{ backgroundImage: "url(https://d3g74fig38xwgn.cloudfront.net/teaching-tool/graphbackground.jpg)", opacity: 0.3 }}
+    style={{ backgroundImage: "url(https://d3g74fig38xwgn.cloudfront.net/teaching-tool/graphbackground.jpg)",
+      //  opacity: 0.3
+       }}
   ></div>
           <button
             onClick={handleStartingTheGame}
@@ -39,11 +41,12 @@ function StartPage() {
   group overflow-hidden inline-flex items-center justify-center
   border
   w-[120px] h-[40px] px-3
+  lg:ml-[4rem]
   text-[14px] uppercase tracking-[1px] font-normal
   rounded-[3px] cursor-pointer select-none relative
   shadow-[inset_0_30px_30px_-15px_rgba(255,255,255,0.1),
           inset_0_0_0_1px_rgba(255,255,255,0.3),
-          inset_0_1px_20px_rgba(0,0,0,0),
+          inset_0_1px_20px_rgba(0,0,0,0), 
           0_3px_0_#0f988e,
           0_3px_2px_rgba(0,0,0,0.2),
           0_5px_10px_rgba(0,0,0,0.1),
@@ -89,11 +92,11 @@ function StartPage() {
                 </h2>
           
                 <ul className="space-y-3 text-lg font-semibold text-indigo-800">
-                  <li>Level 1 👉 Listen carefully to the sound and choose the UPPERCASE letter.</li>
-                  <li>Level 2 👉 Listen carefully to the sound and choose the LOWERCASE letter.</li>
-                  <li>Level 3 👉 Drag the matching letter carefully🎉</li>
-                  <li>Level 4 👉 Listen carefully to the sound and choose all letters</li>
-                  <li>Level 5 👉 Collect all the correct letters to complete the level</li>
+                  <li><b>Level 1:</b> Listen & choose the <b>UPPERCASE</b> letter.</li>
+  <li><b>Level 2:</b> Listen & choose the <b>lowercase</b> letter.</li>
+  <li><b>Level 3:</b> <b>Drag</b> the matching letter 🎉</li>
+  <li><b>Level 4:</b> Listen & choose <b>all matching letters</b>.</li>
+  <li><b>Level 5:</b> <b>Collect</b> correct letters to finish.</li>
                 </ul>
               </div>
             </motion.div>
@@ -104,3 +107,21 @@ function StartPage() {
 }
 
 export default StartPage;
+
+
+// import React from 'react'
+
+// function StartPage() {
+//   return (
+//     <div className='border border-red-950 w-full h-[calc(100vh-30vh)] bg-[#F0FEFF] flex justify-center items-center p-[1rem]'>
+//        <div className='w-[90%] border border-green-700 h-[100%] flex justify-center items-center flex-col gap-[2rem]'>
+//           <div></div>
+//           <div className='w-full border border-black flex justify-evenly items-center flex-row'>
+
+//           </div>
+//        </div>
+//     </div>
+//   )
+// }
+
+// export default StartPage

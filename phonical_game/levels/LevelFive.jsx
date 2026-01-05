@@ -168,9 +168,9 @@ useEffect(() => {
           transform
           ${isTransitioning ? 'cursor-default' : 'cursor-pointer hover:scale-[1.02] active:scale-[0.98]'}
           ${isCorrect 
-            ? 'bg-gradient-to-br from-emerald-400 to-green-500 shadow-2xl shadow-green-200 animate-[pulseCorrect_0.5s_ease-in-out]' 
+            ? 'bg-gradient-to-br from-emerald-400 to-green-500 shadow-2xl shadow-green-200 ' 
             : isWrong 
-            ? 'bg-gradient-to-br from-rose-400 to-red-500 shadow-2xl shadow-red-200 animate-[pulseWrong_0.3s_ease-in-out]' 
+            ? 'bg-gradient-to-br from-rose-400 to-red-500 shadow-2xl shadow-red-200 ' 
             : 'bg-gradient-to-br from-white/90 to-white/70 shadow-xl shadow-purple-100/50'
           }
           ${isInactive ? 'opacity-60 scale-95' : 'opacity-100'}
@@ -208,11 +208,11 @@ useEffect(() => {
           {/* Feedback indicator */}
           {(isCorrect || isWrong) && (
             <div className={`
-              absolute -top-6 left-1/2 transform -translate-x-1/2
+              absolute -top-6 left-1/2 transform 
               text-2xl font-bold whitespace-nowrap
-              transition-all duration-300
+             
               ${isCorrect ? 'text-emerald-600' : 'text-rose-600'}
-              animate-[slideIn_0.3s_ease-out]
+           
             `}>
             </div>
           )}

@@ -177,6 +177,7 @@ const MainCardWordFinder = forwardRef(
       };
     }, [allMatched]);
 
+
     const getting_next_level_data = async () => {
       const formData = new FormData();
       formData.append("position", dataSetIdRef.current);
@@ -218,13 +219,24 @@ const MainCardWordFinder = forwardRef(
                 <div className="w-full bg-black h-full  z-[1] opacity-[0.5]"></div>
                 <button
                   onClick={getting_next_level_data}
-                  className="bg-green-500 rounded absolute shadow-xl px-6 py-3  z-[2]"
+                  className=" rounded absolute w-[17rem] px-6 py-3  z-[2]"
                 >
-                  Next Level
+                <img src="https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/nextSet.png"/>
                 </button>
               </div>
             )}
-            <div className="w-fit mx-auto grid grid-cols-3 xl:grid-cols-4 gap-6 place-items-center relative">
+            {/* {storingRef.current > 5 && (
+              <div className="flex justify-center absolute items-center w-full h-full left-0 top-0">
+                <div className="w-full bg-black h-full  z-[1] opacity-[0.5]"></div>
+                <button
+                  onClick={game_over}
+                  className="bg-green-500 rounded absolute shadow-xl px-6 py-3  z-[2]"
+                >
+                  Game over
+                </button>
+              </div>
+            )} */}
+            <div className="w-fit mx-auto grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 place-items-center relative">
               {cards.map((card) => {
                 const flipped =
                   flippedState[card.uniqueId] || matchedCards[card.uniqueId];
@@ -235,7 +247,9 @@ const MainCardWordFinder = forwardRef(
                     key={card.uniqueId}
                     layout
                     onClick={() => flipCard(card)}
-                    className="w-[100px] h-[100px] md:w-[150px] md:h-[150px] xl:w-[150px] xl:h-[150px]  cursor-pointer perspective-1000 relative"
+                    // className="w-[100px] h-[100px] md:w-[150px] md:h-[150px] xl:w-[150px] xl:h-[150px]  cursor-pointer perspective-1000 relative"
+                    className="w-[150px] h-[150px] md:w-[160px] md:h-[160px] lg:w-[200px] lg:h-[200px]  cursor-pointer perspective-1000 relative"
+
                   >
                     <motion.div
                       animate={{ rotateY: flipped ? 180 : 0 }}
@@ -248,30 +262,37 @@ const MainCardWordFinder = forwardRef(
                       <div
                         className="absolute inset-0 rounded-xl"
                         style={{
-                          background: `radial-gradient(circle at 30% 30%, #8d837c, #5d564f 70%)`,
-                          border: "3px solid #4b433e",
-                          borderRadius: "20% 30% 25% 35%",
-                          backfaceVisibility: "hidden",
-                        }}
+                              backgroundImage: "url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/rock.png)",
+                              backgroundRepeat: "no-repeat",
+                              backgroundPosition: "center",
+                              backgroundSize: "contain", 
+                              borderRadius: "20% 30% 25% 35%",
+                              backfaceVisibility: "hidden",
+                            }}
+
                       >
                 
                       </div>
 
                       {/* Back */}
                       <div
-                        className="absolute inset-0 flex items-center justify-center rounded-xl h2-large text-white  text-3xl font-bold"
+                        className="absolute inset-0 flex items-center justify-center rounded-xl h2-large text-[1.2rem] md:text-[1.4rem] text-white  font-bold w-[150px] h-[150px] md:w-[160px] md:h-[160px] lg:w-[200px] lg:h-[200px]"
                         style={{
-                          background: flipped
+                            backgroundRepeat: "no-repeat",
+
+  backgroundPosition: "center",
+  backgroundSize: "contain", 
+  borderRadius: "20% 30% 25% 35%",
+  backfaceVisibility: "hidden",
+                          backgroundImage: flipped
                             ? matchedCards[card.uniqueId]
                               ? "rgb(71 245 33)"
-                              : "#3e3a36"
-                            : "#3e3a36",
-                            boxShadow:flipped?matchedCards[card.uniqueId]?'2px 2px 16px -3px':'':'',
-                            border: matchedCards[card.uniqueId]
-                            ? "3px solid "
-                            : "3px solid #4b433e",
+                              : "url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/insideImage.png)"
+                            : "url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/insideImage.png)",
                           backfaceVisibility: "hidden",
                           transform: "rotateY(180deg)",
+                          color:'#8c5b3f',
+                          fontWeight:"bolder"
                         }}
                       >
                                   {matchedCards[card.uniqueId] && (

@@ -37,7 +37,7 @@ function LevelOne({  letters, label,onGoHome, timeSpent,
   }, []);
 
 useEffect(() => {
-  if (score > 2) {
+  if (score > 10) {
     setFinishTask(true);
   }
 }, [score]);
@@ -60,7 +60,7 @@ useEffect(() => {
   setScore((s) => {
     const newScore = s + 1;
 
-    if (newScore > 2) {
+    if (newScore > 10) {
       setFinishTask(true);
     }
 
@@ -71,7 +71,7 @@ useEffect(() => {
 
   setTimeout(() => {
     setStar(null);
-    if (score + 1 <= 2) {
+    if (score + 1 <= 10) {
       next();
     }
   }, 900);
@@ -127,7 +127,7 @@ useEffect(() => {
         <HomeBack playAgain={playAgain} onGoHome={onGoHome} timeSpent={timeSpent} component={label}/>
         </>):(<>
     <div
-      className="h-full xl:h-[70vh] px-4 py-6 flex flex-col items-center bg-gradient-to-b from-blue-200 via-pink-100 to-yellow-100"
+      className="h-full xl:h-[75vh] px-4 py-6 flex flex-col items-center bg-gradient-to-b from-blue-200 via-pink-100 to-yellow-100"
       style={{ backgroundSize: "cover" }}
     >
       {/* Controls */}
