@@ -11,6 +11,7 @@ function MainPhoicsPage() {
         {
           id: 1,
           title: "Sam and the Cap",
+          // phonics_l
           thumbnail_image: "https://d3g74fig38xwgn.cloudfront.net/english_game/phonics-stories/st_01/sam01.png",
           daily_limit: false,
           story_pages: [

@@ -140,14 +140,56 @@ const GRADS = [
   'bg-gradient-to-br from-green-200 to-lime-100',
 ];
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = arr.slice();
+// function shuffle<T>(arr: T[]): T[] {
+//   const a = arr.slice();
+//   for (let i = a.length - 1; i > 0; i--) {
+//     const j = Math.floor(Math.random() * (i + 1));
+//     [a[i], a[j]] = [a[j], a[i]];
+//   }
+//   return a;
+// }
+function shuffle<T>(arr: T[]) {
+  const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
 }
+function buildFillBank(wordList: any[], level: string) {
+  const levelMap: Record<string, { s: string; o: string[] }> = {};
+  const words = wordList.map(w => w.word);
+
+  wordList.forEach(item => {
+    let sentence =
+      item.sentence ||
+      (item.phrase ? `The phrase "${item.phrase}" is about ${item.word}` : '') ||
+      `${item.word} means ${item.meaning || 'something'}`;
+
+    if (!sentence.toLowerCase().includes(item.word.toLowerCase())) {
+      sentence = `${item.word} means ${item.meaning || 'something'}`;
+    }
+
+    const regex = new RegExp(`\\b${item.word}\\b`, 'i');
+    const fillSentence = sentence.replace(regex, '___');
+
+    const options = shuffle([
+      item.word,
+      ...shuffle(words.filter(w => w !== item.word)).slice(0, 2),
+    ]);
+
+    levelMap[item.word.toLowerCase()] = {
+      s: fillSentence,
+      o: options,
+    };
+  });
+
+  // 👇 THIS IS THE IMPORTANT PART
+  return {
+    [level]: levelMap
+  };
+}
+
 function useFemaleVoice() {
   const [voice, setVoice] = useState<SpeechSynthesisVoice | null>(null);
   useEffect(() => {
@@ -607,7 +649,9 @@ function ReviewSheet({ items, lang, onClose, jsonData }: { items: VocabItem[]; l
 }
 
 function ReviewModal({ slice, level, lang, onClose, jsonData, categoryId, setJsonData }: { slice: VocabItem[]; level: LevelKey; lang: string | null; onClose: () => void; jsonData: JsonData[], categoryId: number, setJsonData: React.Dispatch<React.SetStateAction<JsonData[]>> }) {
-  const [queue] = useState(() => buildReview(slice, level, buildDNDOverrides(jsonData)));
+  // const [queue] = useState(() => buildReview(slice, level, buildDNDOverrides(jsonData)));
+  const [queue] = useState(() => buildReview(slice, level, buildFillBank(jsonData[0].word_list, level)));
+
   const [idx, setIdx] = useState(0);
   const [ok, setOk] = useState(false);
   const [wrongCount, setWrongCount] = useState(0);

@@ -150,204 +150,204 @@ const testData ={
             "set": 1,
             "is_completed": false,
             "word_list": [
+                // {
+                //     "word": "snake",
+                //     "meaning": "A long, thin reptile with no legs",
+                //     "sentence": "The snake moved quietly through the grass.",
+                //     "quote": "“Even snakes are afraid of snakes.” – Proverb",
+                //     "phrase": "Snake in the grass",
+                //     "phraseMeaning": null,
+                // },
+                // {
+                //     "word": "cat",
+                //     "meaning": "A small animal often kept as a pet",
+                //     "sentence": "The cat slept on the sofa all day.",
+                //     "quote": "“Curiosity killed the cat.” – Proverb",
+                //     "phrase": "Let the cat out of the bag",
+                //     "phraseMeaning": null
+                // },
+                // {
+                //     "word": "pig",
+                //     "meaning": "A farm animal with a flat nose",
+                //     "sentence": "The pig rolled happily in the mud.",
+                //     "quote": "“Don’t cast pearls before a pig.” – Proverb",
+                //     "phrase": "Eat like a pig",
+                //     "phraseMeaning": null
+                // },
                 {
-                    "word": "snake",
-                    "meaning": "A long, thin reptile with no legs",
-                    "sentence": "The snake moved quietly through the grass.",
-                    "quote": "“Even snakes are afraid of snakes.” – Proverb",
-                    "phrase": "Snake in the grass",
-                    "phraseMeaning": null,
-                },
-                {
-                    "word": "cat",
-                    "meaning": "A small animal often kept as a pet",
-                    "sentence": "The cat slept on the sofa all day.",
-                    "quote": "“Curiosity killed the cat.” – Proverb",
-                    "phrase": "Let the cat out of the bag",
+                    "word": "fish",
+                    "meaning": "An animal that lives in water and has fins",
+                    "sentence": "We saw colorful fish in the pond.",
+                    "quote": "“A big fish in a small pond.” – Proverb",
+                    "phrase": "Fish out of water",
                     "phraseMeaning": null
                 },
                 {
-                    "word": "pig",
-                    "meaning": "A farm animal with a flat nose",
-                    "sentence": "The pig rolled happily in the mud.",
-                    "quote": "“Don’t cast pearls before a pig.” – Proverb",
-                    "phrase": "Eat like a pig",
+                    "word": "duck",
+                    "meaning": "A bird that swims and quacks",
+                    "sentence": "The duck swam across the lake.",
+                    "quote": "“Like water off a duck’s back.” – Proverb",
+                    "phrase": "Sitting duck",
                     "phraseMeaning": null
                 },
-                // {
-                //     "word": "fish",
-                //     "meaning": "An animal that lives in water and has fins",
-                //     "sentence": "We saw colorful fish in the pond.",
-                //     "quote": "“A big fish in a small pond.” – Proverb",
-                //     "phrase": "Fish out of water",
-                //     "phraseMeaning": null
-                // },
-                // {
-                //     "word": "duck",
-                //     "meaning": "A bird that swims and quacks",
-                //     "sentence": "The duck swam across the lake.",
-                //     "quote": "“Like water off a duck’s back.” – Proverb",
-                //     "phrase": "Sitting duck",
-                //     "phraseMeaning": null
-                // },
-                // {
-                //     "word": "dolphin",
-                //     "meaning": "A smart sea animal that can jump and play",
-                //     "sentence": "The dolphin leapt out of the ocean.",
-                //     "quote": "“Dolphins may leap, but they never forget to breathe.” – Saying",
-                //     "phrase": "Swim with dolphins",
-                //     "phraseMeaning": null
-                // },
-                // {
-                //     "word": "zebra",
-                //     "meaning": "An African animal with black-and-white stripes",
-                //     "sentence": "The zebra ran fast across the plain.",
-                //     "quote": "“You can’t change a zebra’s stripes.” – Proverb",
-                //     "phrase": "Horse of a different color",
-                //     "phraseMeaning": null
-                // },
-                // {
-                //     "word": "panda",
-                //     "meaning": "A big black-and-white bear that eats bamboo",
-                //     "sentence": "The panda munched on bamboo shoots.",
-                //     "quote": "“Save the panda, save the planet.” – Saying",
-                //     "phrase": "Panda eyes",
-                //     "phraseMeaning": null
-                // }
-            ],
-            "questions": [
                 {
-                    "question": {
-                        "question": "The ___ slid quietly on the ground, showing its long body."
-                    },
-                    "options": [
-                        // "earthworm",
-                        "duck",
-                        "snake",
-                        "fish"
-                    ]
+                    "word": "dolphin",
+                    "meaning": "A smart sea animal that can jump and play",
+                    "sentence": "The dolphin leapt out of the ocean.",
+                    "quote": "“Dolphins may leap, but they never forget to breathe.” – Saying",
+                    "phrase": "Swim with dolphins",
+                    "phraseMeaning": null
                 },
                 {
-                    "question": {
-                        "question": "Timmy's pet ____ sat on the mat waiting for milk."
-                    },
-                    "options": [
-                        "dolphin",
-                        "zebra",
-                        "cat"
-                    ]
+                    "word": "zebra",
+                    "meaning": "An African animal with black-and-white stripes",
+                    "sentence": "The zebra ran fast across the plain.",
+                    "quote": "“You can’t change a zebra’s stripes.” – Proverb",
+                    "phrase": "Horse of a different color",
+                    "phraseMeaning": null
                 },
                 {
-                    "question": {
-                        "question": "The pink ___ rolled in the mud near the farm."
-                    },
-                    "options": [
-                        "pig",
-                        "snake",
-                        "fish"
-                    ]
-                },
-                {
-                    "question": {
-                        "question": "The ___ swam in the pond, moving its fins."
-                    },
-                    "options": [
-                        "fish",
-                        "cow",
-                        "cat"
-                    ]
-                },
-                {
-                    "question": {
-                        "question": "The ___ quacked loudly by the lake."
-                    },
-                    "options": [
-                        "duck",
-                        "fish",
-                        "pig"
-                    ]
-                },
-                {
-                    "question": {
-                        "question": "The ___ jumped out of the water and played with waves."
-                    },
-                    "options": [
-                        "cow",
-                        "dolphin",
-                        "cat"
-                    ]
-                },
-                {
-                    "question": {
-                        "question": "The ___ has black and white stripes on its body."
-                    },
-                    "options": [
-                        "fish",
-                        "pig",
-                        "zebra"
-                    ]
-                },
-                {
-                    "question": {
-                        "question": "The ___ eats bamboo in the forest."
-                    },
-                    "options": [
-                        "duck",
-                        "pig",
-                        "panda"
-                    ]
-                },
-                {
-                    "question": {
-                        "question": "I have ___ sugar."
-                    },
-                    "options": [
-                        "some",
-                        "a",
-                        "an"
-                    ]
-                },
-                {
-                    "question": {
-                        "question": "Can ____ come here, Maya?"
-                    },
-                    "options": [
-                        "me",
-                        "I",
-                        "you"
-                    ]
-                },
-                {
-                    "question": {
-                        "question": "____ like his sweater."
-                    },
-                    "options": [
-                        "he",
-                        "some",
-                        "the"
-                    ]
-                },
-                {
-                    "question": {
-                        "question": "____ enjoys singing her mother's songs."
-                    },
-                    "options": [
-                        "we",
-                        "me",
-                        "she"
-                    ]
-                },
-                {
-                    "question": {
-                        "question": "Are ____ coming to the party?"
-                    },
-                    "options": [
-                        "she",
-                        "they",
-                        "me"
-                    ]
+                    "word": "panda",
+                    "meaning": "A big black-and-white bear that eats bamboo",
+                    "sentence": "The panda munched on bamboo shoots.",
+                    "quote": "“Save the panda, save the planet.” – Saying",
+                    "phrase": "Panda eyes",
+                    "phraseMeaning": null
                 }
-            ]
+            ],
+            // "questions": [
+            //     {
+            //         "question": {
+            //             "question": "The ___ slid quietly on the ground, showing its long body."
+            //         },
+            //         "options": [
+            //             // "earthworm",
+            //             "duck",
+            //             "snake",
+            //             "fish"
+            //         ]
+            //     },
+            //     {
+            //         "question": {
+            //             "question": "Timmy's pet ____ sat on the mat waiting for milk."
+            //         },
+            //         "options": [
+            //             "dolphin",
+            //             "zebra",
+            //             "cat"
+            //         ]
+            //     },
+            //     {
+            //         "question": {
+            //             "question": "The pink ___ rolled in the mud near the farm."
+            //         },
+            //         "options": [
+            //             "pig",
+            //             "snake",
+            //             "fish"
+            //         ]
+            //     },
+            //     {
+            //         "question": {
+            //             "question": "The ___ swam in the pond, moving its fins."
+            //         },
+            //         "options": [
+            //             "fish",
+            //             "cow",
+            //             "cat"
+            //         ]
+            //     },
+            //     {
+            //         "question": {
+            //             "question": "The ___ quacked loudly by the lake."
+            //         },
+            //         "options": [
+            //             "duck",
+            //             "fish",
+            //             "pig"
+            //         ]
+            //     },
+            //     {
+            //         "question": {
+            //             "question": "The ___ jumped out of the water and played with waves."
+            //         },
+            //         "options": [
+            //             "cow",
+            //             "dolphin",
+            //             "cat"
+            //         ]
+            //     },
+            //     {
+            //         "question": {
+            //             "question": "The ___ has black and white stripes on its body."
+            //         },
+            //         "options": [
+            //             "fish",
+            //             "pig",
+            //             "zebra"
+            //         ]
+            //     },
+            //     {
+            //         "question": {
+            //             "question": "The ___ eats bamboo in the forest."
+            //         },
+            //         "options": [
+            //             "duck",
+            //             "pig",
+            //             "panda"
+            //         ]
+            //     },
+            //     {
+            //         "question": {
+            //             "question": "I have ___ sugar."
+            //         },
+            //         "options": [
+            //             "some",
+            //             "a",
+            //             "an"
+            //         ]
+            //     },
+            //     {
+            //         "question": {
+            //             "question": "Can ____ come here, Maya?"
+            //         },
+            //         "options": [
+            //             "me",
+            //             "I",
+            //             "you"
+            //         ]
+            //     },
+            //     {
+            //         "question": {
+            //             "question": "____ like his sweater."
+            //         },
+            //         "options": [
+            //             "he",
+            //             "some",
+            //             "the"
+            //         ]
+            //     },
+            //     {
+            //         "question": {
+            //             "question": "____ enjoys singing her mother's songs."
+            //         },
+            //         "options": [
+            //             "we",
+            //             "me",
+            //             "she"
+            //         ]
+            //     },
+            //     {
+            //         "question": {
+            //             "question": "Are ____ coming to the party?"
+            //         },
+            //         "options": [
+            //             "she",
+            //             "they",
+            //             "me"
+            //         ]
+            //     }
+            // ]
         }
     ],
     "categories": [

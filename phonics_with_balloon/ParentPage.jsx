@@ -46,6 +46,71 @@ const bomb = new Audio(
 const answerCorrect = new Audio(
   "https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/correctAnswerBallon.mp3"
 );
+
+const GAME_THEMES = [
+  {
+    id: "balloon",
+    background: {
+      easy: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/phonics_letterBg.png",
+      medium: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/phonics_letterBg.png",
+      hard: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/phonics_letterBg.png",
+    },
+    items: {
+      easy: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/leveloneballon.png",
+      medium: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/leveloneballon.png",
+      hard: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/leveloneballon.png",
+    },
+    bomb: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/bomb.png",
+    basket: {
+      easy: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/basket.png",
+      medium: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/basket.png",
+      hard: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/basket.png",
+    },
+  },
+
+  {
+    id: "bee",
+    background: {
+      easy: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/honebeeBg.png",
+      medium: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/honebeeBg.png",
+      hard: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/honebeeBg.png",
+    },
+    items: {
+      easy: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/newBees.png",
+      medium: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/newBees.png",
+      hard: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/newBees.png",
+    },
+    bomb: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/newhoneyBomb.png",
+    basket: {
+      easy: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/honeyBasket.png",
+      medium: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/honeyBasket.png",
+      hard: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/honeyBasket.png",
+    },
+  },
+
+  {
+    id: "snow",
+    background: {
+      easy: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/penguinBg.png",
+      medium: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/penguinBg.png",
+      hard: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/penguinBg.png",
+    },
+    items: {
+      easy: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/snowBall.png",
+      medium: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/snowBall.png",
+      hard: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/snowBall.png",
+    },
+    bomb: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/snowBomb.png",
+    basket: {
+      easy: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/penguinBasket.png",
+      medium: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/penguinBasket.png",
+      hard: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/penguinBasket.png",
+    },
+  },
+];
+
+
+
 const isColliding = (a, b) =>
   a.x < b.x + b.width &&
   a.x + a.width > b.x &&
@@ -53,11 +118,11 @@ const isColliding = (a, b) =>
   a.y + a.height > b.y;
 
 /* ---------------- CONSTANTS ---------------- */
-const GAME_TIME = 8;
+const GAME_TIME = 30;
 const SCORE_TO_NEXT_LEVEL = 5;
 const BOMB_TEXT = "";
 const BOMB_PENALTY = 1;
-const LEVEL_TARGET_SCORE = 20;
+const LEVEL_TARGET_SCORE = 10;
 
 const MIN_X_GAP = 10; // percentage
 const MIN_Y_GAP = 80;
@@ -70,11 +135,23 @@ function ParentPage() {
   const [gameActive, setGameActive] = useState(false);
   const [showNextLevel, setShowNextLevel] = useState(false);
   const [gameOver, setGameOver] = useState(false);
-  // const [backenData,setSendingBackendData]=useState(null)
-  const [backenData, setSendingBackendData] = useState(gameData);
+  const [backenData,setSendingBackendData]=useState(null)
+  // const [backenData, setSendingBackendData] = useState(gameData);
   const [showInstructions, setShowInstructions] = useState(false); // hidden initially
   const [hasGameStarted, setHasGameStarted] = useState(false);
   const [playStarted, setPlayStarted] = useState(false);
+  const instructionAudioRef = useRef(null);
+  const instructionCancelRef = useRef(false);
+  const [selectedTheme, setSelectedTheme] = useState(null);
+  const [gameTheme, setGameTheme] = useState(null);
+  // const [gameThe]
+
+const pickRandomTheme = () => {
+  const random = GAME_THEMES[Math.floor(Math.random() * GAME_THEMES.length)];
+  setGameTheme(random);
+};
+
+
 
   const boxRef = useRef(null);
   const dragging = useRef(false);
@@ -138,8 +215,29 @@ const startDelayRef = useRef(null);
 //   }, settingTimer);
 // };
 
+const [glow, setGlow] = useState(false);
+
+useEffect(() => {
+  if (score > 0) {
+    setGlow(true);
+    const t = setTimeout(() => setGlow(false), 500);
+    return () => clearTimeout(t);
+  }
+}, [score]);
+
+const [scoreGlow, setScoreGlow] = useState(false);
+
+useEffect(() => {
+  if (score > 0) {
+    setScoreGlow(true);
+    const t = setTimeout(() => setScoreGlow(false), 450);
+    return () => clearTimeout(t);
+  }
+}, [score]);
+
+
 const startGameWithDelay = () => {
-  let settingTimer = currentLevel.level_type === "easy" ? 3000 : 6000;
+  let settingTimer = currentLevel.level_type === "easy" ? 4000 : 6000;
 
   setPlayStarted(false);
 
@@ -197,6 +295,7 @@ const startGameWithDelay = () => {
 
   /* ---------------- START LEVEL ---------------- */
   const startLevel = () => {
+    //  pickRandomTheme();
     window.speechSynthesis.resume();
     startTimer();
     correctSound.play();
@@ -471,14 +570,26 @@ const startGameWithDelay = () => {
       audio.play();
     });
   };
-  const playAudioAndWait = (src) => {
-    return new Promise((resolve) => {
-      const audio = new Audio(src);
-      audio.volume = 1;
-      audio.onended = resolve;
-      audio.play();
-    });
-  };
+const playAudioAndWait = (src) => {
+  return new Promise((resolve) => {
+    if (instructionCancelRef.current) return resolve();
+
+    const audio = new Audio(src);
+    instructionAudioRef.current = audio;
+
+    audio.volume = 1;
+
+    audio.onended = () => {
+      if (instructionAudioRef.current === audio) {
+        instructionAudioRef.current = null;
+      }
+      resolve();
+    };
+
+    audio.play().catch(resolve);
+  });
+};
+
 
   // const speakInstructionWithPhonics = async () => {
   //   const MainSound =new Audio('/soundPhonics.mp3')
@@ -509,33 +620,70 @@ const startGameWithDelay = () => {
   //   }
   // };
 
-  const speakInstructionWithPhonics = async () => {
-    const target = backenData?.target_word;
-    if (!target || !currentLevel) return;
+const speakInstructionWithPhonics = async () => {
+  const target = backenData?.target_word;
+  if (!target || !currentLevel) return;
 
-    // stop any running speech/audio
-    window.speechSynthesis.cancel();
+  // 🔥 reset previous instruction
+  stopInstructionAudio();
 
-    if (currentLevel.level_type === "easy") {
-      await playAudioAndWait("https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/catchThe.mp3"); // 🎧 "Catch the"
-      await playPhonicsSound(target); // 🔊 phonics sound
-      await playAudioAndWait("https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/soundPhonics.mp3"); // 🎧 "sound"
-    }
+  instructionCancelRef.current = false;
 
-    if (currentLevel.level_type === "medium") {
-      // await speakText("Find the word ending with");
-      await playAudioAndWait("https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/endsWith.mp3");
-      await playPhonicsSound(target);
-      await playAudioAndWait("https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/soundPhonics.mp3");
-    }
+  if (currentLevel.level_type === "easy") {
+    await playAudioAndWait("https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/catchThe.mp3");
+    if (instructionCancelRef.current) return;
 
-    if (currentLevel.level_type === "hard") {
-      // await speakText("Find the word starting with");
-      await playAudioAndWait("https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/startsWith.mp3");
-      await playPhonicsSound(target);
-      await playAudioAndWait("https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/soundPhonics.mp3");
-    }
-  };
+    await playPhonicsSound(target);
+    if (instructionCancelRef.current) return;
+
+    await playAudioAndWait("https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/soundPhonics.mp3");
+  }
+
+  if (currentLevel.level_type === "medium") {
+    await playAudioAndWait("https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/endsWith.mp3");
+    if (instructionCancelRef.current) return;
+
+    await playPhonicsSound(target);
+    if (instructionCancelRef.current) return;
+
+    await playAudioAndWait("https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/soundPhonics.mp3");
+  }
+
+  if (currentLevel.level_type === "hard") {
+    await playAudioAndWait("https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/startsWith.mp3");
+    if (instructionCancelRef.current) return;
+
+    await playPhonicsSound(target);
+    if (instructionCancelRef.current) return;
+
+    await playAudioAndWait("https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/soundPhonics.mp3");
+  }
+};
+
+const stopInstructionAudio = () => {
+  instructionCancelRef.current = true;
+
+  // stop speech
+  window.speechSynthesis.cancel();
+
+  // stop instruction audio
+  if (instructionAudioRef.current) {
+    instructionAudioRef.current.pause();
+    instructionAudioRef.current.currentTime = 0;
+    instructionAudioRef.current = null;
+  }
+};
+useEffect(() => {
+  if (showNextLevel) {
+    stopInstructionAudio();
+  }
+}, [showNextLevel]);
+useEffect(() => {
+  if (gameOver) {
+    stopInstructionAudio();
+  }
+}, [gameOver]);
+
 
   /* ---------------- LEVEL COMPLETE ---------------- */
 
@@ -752,6 +900,7 @@ startLevel();
   }, [gameOver]);
 
   const resetGame = async () => {
+    // pickRandomTheme();
     resetTimer();
 
     const formData = new FormData();
@@ -951,32 +1100,54 @@ startLevel();
     }
   };
 
-  const getItemImage = (type, levelType) => {
-    if (type === "bomb") {
-      if (levelType === "easy")
-        return "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/bomb.png";
+  // const getItemImage = (type, levelType) => {
+  //   if (type === "bomb") {
+  //     if (levelType === "easy")
+  //       return "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/bomb.png";
 
-      if (levelType === "medium")
-        return "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/newhoneyBomb.png";
+  //     if (levelType === "medium")
+  //       return "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/newhoneyBomb.png";
 
-      if (levelType === "hard")
-        return "/snowBomb.png";
+  //     if (levelType === "hard")
+  //       return "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/snowBomb.png";
 
-      return "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/bomb.png";
-    }
+  //     return "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/bomb.png";
+  //   }
 
-    // normal items
-    if (levelType === "easy")
-      return "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/leveloneballon.png";
+  //   // normal items
+  //   if (levelType === "easy")
+  //     return "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/leveloneballon.png";
 
-    if (levelType === "medium")
-      return "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/newBees.png";
+  //   if (levelType === "medium")
+  //     return "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/newBees.png";
 
-    if (levelType === "hard")
-      return "/snowBall.png";
+  //   if (levelType === "hard")
+  //     return "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/snowBall.png";
 
-    return "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/leveloneballon.png";
-  };
+  //   return "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/leveloneballon.png";
+  // };
+
+//   const getItemImage = (type, levelType) => {
+//   if (!selectedTheme) return "";
+
+//   if (type === "bomb") {
+//     return selectedTheme.bomb;
+//   }
+
+//   if (levelType === "easy") return selectedTheme.normal_easy;
+//   if (levelType === "medium") return selectedTheme.normal_medium;
+//   if (levelType === "hard") return selectedTheme.normal_hard;
+
+//   return selectedTheme.normal_easy;
+// };
+const getItemImage = (type, levelType) => {
+  if (!gameTheme) return "";
+
+  if (type === "bomb") return gameTheme.bomb;
+
+  return gameTheme.items[levelType];
+};
+
 
   useEffect(() => {
     if (showNextLevel || gameOver) {
@@ -999,15 +1170,21 @@ startLevel();
   return (
     <div
       className="relative w-full h-[100vh] bg-black lg:h-[calc(100vh-10vh)] bg-center bg-cover 2xl:bg-cover overflow-hidden bg-no-repeat select-none"
+      // style={{
+      //   backgroundImage: `url(${
+      //     currentLevel.level_type == "easy"
+      //       ? "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/phonics_letterBg.png"
+      //       : currentLevel.level_type == "medium"
+      //       ? "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/honebeeBg.png"
+      //       : "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/penguinBg.png"
+      //   })`,
+      // }}
       style={{
-        backgroundImage: `url(${
-          currentLevel.level_type == "easy"
-            ? "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/phonics_letterBg.png"
-            : currentLevel.level_type == "medium"
-            ? "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/honebeeBg.png"
-            : "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/penguinBg.png"
-        })`,
-      }}
+  backgroundImage: gameTheme
+    ? `url(${gameTheme.background[currentLevel.level_type]})`
+    : "none",
+}}
+
       onMouseMove={(e) => moveBox(e.clientX)}
       onMouseUp={stopDrag}
       onTouchMove={(e) => moveBox(e.touches[0].clientX)}
@@ -1020,12 +1197,23 @@ startLevel();
           alt=""
           className="w-[2rem]"
         />{" "}
-        <span>
+        {/* <span>
           {score} / {LEVEL_TARGET_SCORE}
-        </span>
+        </span> */}
+        <span
+  className={`transition-all ${
+    scoreGlow ? "score-glow" : ""
+  }`}
+>
+  {score} / {LEVEL_TARGET_SCORE}
+</span>
+
       </div>
 
-      <div className={`absolute top-4 right-[3rem] ${currentLevel.level_type == "easy"?'text-white':'text-black'}  w-[3rem] gap-[0.5rem] flex justify-center items-center`}>
+      {/* <div className={`absolute top-4 right-[3rem] ${currentLevel.level_type == "easy"?'text-white':'text-black'}  w-[3rem] gap-[0.5rem] flex justify-center items-center`}>
+       */}
+      <div className={`absolute top-4 right-[3rem] ${gameTheme?.id == "balloon"?'text-white':'text-black'}  w-[3rem] gap-[0.5rem] flex justify-center items-center`}>
+
               <img
         src="https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/hearAgain.png"
         alt="hearAgain"
@@ -1114,7 +1302,7 @@ startLevel();
 
       <div
         ref={gameAreaRef}
-        className="w-[80%] md:w-[70%] xl:w-[80%] zxl:w-[85%] mx-auto h-full relative"
+        className="w-[80%] md:w-[70%] xl:w-[74%] zxl:w-[85%] mx-auto h-full relative"
       >
         {/* Falling Items */}
         {letters.map((l) => (
@@ -1123,28 +1311,28 @@ startLevel();
             className="absolute text-white text-2xl font-bold flex  select-none "
             style={{ left: `${l.x}%`, top: l.y }}
           >
-            <div className=" relative">
+            <div className="relative">
               <img
                 src={getItemImage(l.type, currentLevel.level_type)}
                 alt="game item"
                 className={`${
-                  currentLevel.level_type == "hard"
-                    ? "w-full h-full"
-                    : "w-full h-full"
-                } relative left-1 top-[1rem] object-contain pointer-events-none`}
+                  gameTheme?.id == "bee"
+                    ? ""
+                    : "top-[1rem] "
+                } w-full h-full relative left-1 object-contain pointer-events-none`}
               />
 
               <h2
                 className={`absolute bottom-0 left-1/2 -translate-x-1/2 -translate-y-1/2
   font-bold text-xl pointer-events-none select-none
 ${
-  currentLevel.level_type == "medium" || "hard"
+  gameTheme?.id == "bee"||'snow'
     ? "text-black text-[1.1rem] text-center w-[60px] flex-wrap"
     : "text-white"
 }`}
               >
                 <span className={`${
-  currentLevel.level_type == "easy"
+  gameTheme?.id == "balloon"
     ? "text-white "
     : "text-black"
 }`}>{l.value}</span>
@@ -1158,23 +1346,29 @@ ${
           ref={boxRef}
           onMouseDown={startDrag}
           onTouchStart={startDrag}
-          className="absolute bottom-10 w-[200px] h-[150px]  
+          className={`absolute bottom-10 ${ gameTheme?.id == "bee"?'w-[200px]':"w-[200px]"} h-[150px]  
          
-        flex justify-center items-center text-white text-xl cursor-pointer"
+        flex justify-center items-center text-white text-xl cursor-pointer`}
           style={{ left: boxX }}
         >
           <img
+            // src={
+            //   currentLevel.level_type == "easy"
+            //     ? "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/basket.png"
+            //     : currentLevel.level_type == "medium"
+            //     ? "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/honeyBasket.png"
+            //     : "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/penguinBasket.png"
+            // }
             src={
-              currentLevel.level_type == "easy"
-                ? "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/basket.png"
-                : currentLevel.level_type == "medium"
-                ? "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/honeyBasket.png"
-                : "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/penguinBasket.png"
-            }
+  gameTheme
+    ? gameTheme.basket[currentLevel.level_type]
+    : ""
+}
+
             alt="basket"
             draggable={false}
             className={`${
-              currentLevel.level_type == "hard" ? " w-[8rem] h-[8rem]" : ""
+              gameTheme?.id == "snow" ? " w-[8rem] h-[8rem]" : ""
             }pointer-events-none`}
           />
           {/* Catch */}
@@ -1204,7 +1398,10 @@ ${
             />
           </motion.div>
           <button
-            onClick={startLevel}
+             onClick={() => {
+    pickRandomTheme();   // ✅ Pick ONCE
+    startLevel();
+  }}
             className="px-6 py-3 bg-green-500 text-white text-xl rounded z-[100] absolute bottom-[9rem]"
           >
             Start Level
@@ -1227,7 +1424,15 @@ ${
             <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl shadow-md">
               <span className="text-xl text-gray-200">Final Score</span>
 
-              <span className="text-3xl font-bold text-white">{score}</span>
+              {/* <span className="text-3xl font-bold text-white">{score}</span> */}
+              <span
+  className={`text-3xl font-bold text-white transition-all ${
+    glow ? "score-glow" : ""
+  }`}
+>
+  {score}
+</span>
+
 
               <span className="text-xl text-gray-300">
                 / {LEVEL_TARGET_SCORE}
