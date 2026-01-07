@@ -69,7 +69,7 @@ export default function SentenceFun({ data }) {
   const [item, setItem] = useState({});
 
   useEffect(() => {
-    // const items = storingBackendData?.[0]?.sentence_full_data?.[0] || {};
+  // const items = storingBackendData?.[0]?.sentence_full_data?.[0] || {};
     const items =
       storingBackendData?.sentence_full_data?.[0]?.sentence_data?.[0];
 
