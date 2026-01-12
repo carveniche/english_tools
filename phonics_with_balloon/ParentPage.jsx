@@ -51,9 +51,9 @@ const GAME_THEMES = [
   {
     id: "balloon",
     background: {
-      easy: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/phonics_letterBg.png",
-      medium: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/phonics_letterBg.png",
-      hard: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/phonics_letterBg.png",
+      easy: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/BallonLevelBackground.png",
+      medium: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/BallonLevelBackground.png",
+      hard: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/BallonLevelBackground.png",
     },
     items: {
       easy: "https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/leveloneballon.png",
@@ -132,7 +132,7 @@ function ParentPage() {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(GAME_TIME);
   const [levelIndex, setLevelIndex] = useState(0);
-  const [gameActive, setGameActive] = useState(false);
+const [gameActive, setGameActive] = useState(false);
   const [showNextLevel, setShowNextLevel] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [backenData,setSendingBackendData]=useState(null)
@@ -144,6 +144,8 @@ function ParentPage() {
   const instructionCancelRef = useRef(false);
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [gameTheme, setGameTheme] = useState(null);
+  const isGameClosedRef = useRef(false);
+
   // const [gameThe]
 
 const pickRandomTheme = () => {
@@ -957,6 +959,7 @@ startLevel();
     const btn = document.getElementById("closing-btn-phonics-with-letters");
 
     const onClick = () => {
+       hardStopGame();
       correctSound.pause();
       if ((!gameActive && !showNextLevel) || gameOver) return;
       if (typeof window.sendingTimespentLetters === "function") {
@@ -980,6 +983,9 @@ startLevel();
       if (btn) btn.removeEventListener("click", onClick);
     };
   }, [gameActive, gameOver, showNextLevel]);
+
+
+
 
   const handleCollisionWithBox = (boxRect) => {
     const containerRect = gameAreaRef.current?.getBoundingClientRect();
@@ -1148,16 +1154,103 @@ const getItemImage = (type, levelType) => {
   return gameTheme.items[levelType];
 };
 
+const resultAudioRef = useRef(null);
+
+
 
   useEffect(() => {
     if (showNextLevel || gameOver) {
+       stopAllAudio();
       const audio = new Audio(
         score >= LEVEL_TARGET_SCORE ? "https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/allRight.mp3" : "https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/oppsMessage.mp3"
       );
-
+      resultAudioRef.current = audio;
       audio.play();
     }
-  }, [showNextLevel, gameOver, score]);
+      return () => {
+     stopAllAudio();
+  };
+  }, [showNextLevel, gameOver]);
+
+
+const stopAllAudio = () => {
+  // console.log("🛑 STOP ALL AUDIO");
+
+  // 🛑 Result audio
+  if (resultAudioRef.current) {
+    resultAudioRef.current.pause();
+    resultAudioRef.current.currentTime = 0;
+    resultAudioRef.current.src = "";
+    resultAudioRef.current.load();
+    resultAudioRef.current = null;
+  }
+
+  // 🛑 Instruction audio
+  if (instructionAudioRef.current) {
+    instructionAudioRef.current.pause();
+    instructionAudioRef.current.currentTime = 0;
+    instructionAudioRef.current.src = "";
+    instructionAudioRef.current.load();
+    instructionAudioRef.current = null;
+  }
+
+  // 🛑 Background music
+  correctSound.pause();
+  correctSound.currentTime = 0;
+
+  // 🛑 Effects
+  bomb.pause();
+  bomb.currentTime = 0;
+
+  answerCorrect.pause();
+  answerCorrect.currentTime = 0;
+
+  // 🛑 Speech
+  window.speechSynthesis.cancel();
+};
+
+const hardStopGame = () => {
+  console.log("🧨 HARD STOP GAME");
+
+  // 🛑 Stop all audio
+  stopAllAudio();
+
+  // 🛑 Stop all timers
+  stopTimer();
+
+  if (timerRef.current) {
+    clearInterval(timerRef.current);
+    timerRef.current = null;
+  }
+
+  if (spawnRef.current) {
+    clearInterval(spawnRef.current);
+    spawnRef.current = null;
+  }
+
+  if (animationRef.current) {
+    cancelAnimationFrame(animationRef.current);
+    animationRef.current = null;
+  }
+
+  if (startDelayRef.current) {
+    clearTimeout(startDelayRef.current);
+    startDelayRef.current = null;
+  }
+
+  // 🛑 Kill game logic
+  setGameActive(false);
+  setPlayStarted(false);
+  setShowNextLevel(false);
+  setGameOver(false);
+  setHasGameStarted(false);
+
+  // 🧹 Clear objects
+  setLetters([]);
+};
+
+
+
 
   if (!backenData) {
     return (
@@ -1217,7 +1310,7 @@ const getItemImage = (type, levelType) => {
               <img
         src="https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/hearAgain.png"
         alt="hearAgain"
-        className="w-[2rem] relative top-[0.3rem] cursor-pointer "
+        className="w-[2rem] relative top-[0.3rem] cursor-pointer z-[4]"
         onClick={() => {
           speakInstructionWithPhonics();
         }}
@@ -1302,7 +1395,7 @@ const getItemImage = (type, levelType) => {
 
       <div
         ref={gameAreaRef}
-        className="w-[80%] md:w-[70%] xl:w-[74%] zxl:w-[85%] mx-auto h-full relative"
+        className="w-[90%] md:w-[70%] xl:w-[74%] zxl:w-[85%] mx-auto h-full relative"
       >
         {/* Falling Items */}
         {letters.map((l) => (
@@ -1319,15 +1412,15 @@ const getItemImage = (type, levelType) => {
                   gameTheme?.id == "bee"
                     ? ""
                     : "top-[1rem] "
-                } w-full h-full relative left-1 object-contain pointer-events-none`}
+                } w-[70%] md:w-full md:h-full relative left-1 object-contain pointer-events-none`}
               />
 
               <h2
-                className={`absolute bottom-0 left-1/2 -translate-x-1/2 -translate-y-1/2
+                className={`absolute bottom-[-10px] md:bottom-0 left-[35%] md:left-1/2 -translate-x-1/2 -translate-y-1/2
   font-bold text-xl pointer-events-none select-none
 ${
   gameTheme?.id == "bee"||'snow'
-    ? "text-black text-[1.1rem] text-center w-[60px] flex-wrap"
+    ? "text-black text-[1rem]  md:text-[1.1rem] text-center w-[60px] flex-wrap"
     : "text-white"
 }`}
               >
@@ -1346,10 +1439,11 @@ ${
           ref={boxRef}
           onMouseDown={startDrag}
           onTouchStart={startDrag}
-          className={`absolute bottom-10 ${ gameTheme?.id == "bee"?'w-[200px]':"w-[200px]"} h-[150px]  
+          className={`absolute bottom-10 ${ gameTheme?.id == "bee"?'w-[130px] md:w-[200px]':"w-[150px] md:w-[200px]"} h-[100px] md:h-[150px]  
          
-        flex justify-center items-center text-white text-xl cursor-pointer`}
-          style={{ left: boxX }}
+        flex justify-center items-center text-white text-xl cursor-pointer `}
+      style={{ transform: `translateX(${boxX}px)` }}
+
         >
           <img
             // src={
@@ -1368,7 +1462,7 @@ ${
             alt="basket"
             draggable={false}
             className={`${
-              gameTheme?.id == "snow" ? " w-[8rem] h-[8rem]" : ""
+              gameTheme?.id == "snow" ? "w-[4rem] h-[5rem] md:w-[6rem] md:h-[6rem] lg:w-[9rem] lg:h-[10rem] " : ""
             }pointer-events-none`}
           />
           {/* Catch */}
@@ -1377,7 +1471,7 @@ ${
       {/* START */}
       {!gameActive && !showNextLevel && !gameOver && (
         <div
-          className="absolute inset-0 bg-black/70 flex items-center justify-center bg-center bg-cover bg-no-repeat w-full"
+          className="absolute inset-0 bg-black/70 flex items-center justify-center bg-center bg-cover bg-no-repeat w-full z-[5]"
           style={{
             backgroundImage:
               "url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/startPage.png)",
@@ -1410,7 +1504,7 @@ ${
       )}
 
       {showNextLevel && (
-        <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-white gap-6">
+        <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-white gap-6 z-[5]">
           <div className="flex flex-col items-center gap-4">
             {/* Title */}
             <div
