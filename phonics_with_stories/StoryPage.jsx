@@ -53,8 +53,8 @@ const stopSpeech = () => {
           console.log( "not found sendingTimespentPhonics function");
         }
 
-        if (typeof resetTimer === "function") {
-          resetTimer();
+        if (typeof window.resetTimer === "function") {
+          window.resetTimer();
         }
       };
 

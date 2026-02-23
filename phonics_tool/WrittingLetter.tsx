@@ -458,7 +458,7 @@
 // export default WriteLetter;
 
 import React, { useEffect, useState } from "react";
-import PathTracer from "./PathTracerWeb.tsx";
+import PathTracer from "./PathTracerWeb";
 
 type WriteLetterProps = {
   selectedLetter?: string;

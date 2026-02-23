@@ -14,7 +14,7 @@ function FindTheWords({data}) {
     }, 1000);
     return () => clearInterval(showingTimer);
   }, []);
-const resetTimer = () => setStoring(0);
+const resetTimer = () => setStoringTime(0);
 
   const toggleFullscreen = () => {
   const geting_full_screen = document.getElementById('enable-full-screen');

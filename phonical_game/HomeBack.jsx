@@ -7,11 +7,11 @@ function HomeBack({ playAgain, onGoHome,timeSpent,component }) {
   }, [timeSpent]);
 
 const handlebackFunction=(()=>{
-      if (typeof sendingTimespentPhonics === "function") {
+      if (typeof window.sendingTimespentPhonics === "function") {
         const formdata = new FormData
         formdata.append('level_name',component)
         formdata.append('timespent',timeSpent)
-        sendingTimespentPhonics(formdata);
+        window.sendingTimespentPhonics(formdata);
       } else {
         // console.log(timeSpent,"timeSpenttimeSpenttimeSpent")
         // console.log("not found sendingTimespentPhonics function");

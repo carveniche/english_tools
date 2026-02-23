@@ -13,7 +13,7 @@ import BlendEnd from "./json/lettterLettersound.json";
 // import opentype from 'opentype.js';
 import  "./phonics.css";
 import '../../index.css';
-import WriteLetterTab from "./WrittingLetter.tsx";
+import WriteLetterTab from "./WrittingLetter";
 type SingleItem = {
   id: string;
   lab: string;
