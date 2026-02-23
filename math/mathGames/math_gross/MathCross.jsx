@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import { generatePuzzle } from "./math_cross";
 import { motion } from "framer-motion";
+import confetti from "canvas-confetti";
 
 const POP_SOUND =
   "https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/clockTickingSound.mp3";
@@ -44,7 +45,10 @@ const endTimeRef = useRef(null);
   const [animKey, setAnimKey] = useState(0);
   const popAudioRef = useRef(null);
   const [cellSize, setCellSize] = useState(64);
-
+    const confettiRef = useRef(null);
+useEffect(() => {
+  confettiRef.current = confetti.create(undefined, { resize: true, useWorker: true });
+}, []);
 useEffect(() => {
   function updateSize() {
     const w = window.innerWidth;
@@ -113,6 +117,8 @@ useEffect(() => {
   }
 
   function checkAnswers() {
+        console.log(score,"hello")
+
     let correct = 0;
     for (let id in answers) {
       if (Number(inputs[id]) === answers[id]) correct++;
@@ -121,11 +127,41 @@ useEffect(() => {
     endTimeRef.current = Date.now();
 
     setShowResult(true);
+ 
   }
 
   useEffect(() => {
   startTimeRef.current = Date.now();
 }, []);
+//           confettiRef.current?.({ particleCount: 100, spread: 100, origin: { y: 0.6 } });
+
+
+// useEffect(()=>{
+  
+//        if(score>=3){
+//         console.log(score,"hello")
+
+//     }
+// },[score])
+useEffect(() => {
+  const total = Object.keys(answers).length;
+
+  if (showResult && score === total) {
+    const duration = 2000;
+    const end = Date.now() + duration;
+
+    const interval = setInterval(() => {
+      confettiRef.current?.({
+        particleCount: 20,
+        spread: 120,
+        startVelocity: 30,
+        origin: { y: 0.6 },
+      });
+
+      if (Date.now() > end) clearInterval(interval);
+    }, 200);
+  }
+}, [showResult, score, answers]);
 
 
   function resetGame() {
@@ -275,7 +311,7 @@ const resultStatus = isWin ? "win" : "lose";
           disabled={!allFilled}
           onClick={checkAnswers}
           className={`absolute left-2 top-1
-            p-[1rem] text-xl font-extrabold rounded-2xl shadow-xl transition-all duration-300
+            p-[0.5rem] xl:p-[1rem] text-[1rem]  xl:text-xl font-extrabold rounded-2xl shadow-xl transition-all duration-300
             ${
               allFilled
                 ? "bg-gradient-to-r from-green-500 to-lime-500 hover:scale-110 active:scale-95 text-white animate-pulse"
@@ -283,7 +319,8 @@ const resultStatus = isWin ? "win" : "lose";
             }
           `}
         >
-          CHECK ANSWERS
+          <span className="hidden xl:block">CHECK ANSWERS</span>
+          <span className="block xl:hidden">CHECK</span>
         </button>
       )}
 
@@ -340,11 +377,11 @@ const resultStatus = isWin ? "win" : "lose";
               )}
             </div>
 
-            <p className="mt-3 font-bold text-purple-700">
+            {/* <p className="mt-3 font-bold text-purple-700">
               {["Great job!", "Awesome!", "Keep practicing!"][
                 Math.floor(Math.random() * 3)
               ]}
-            </p>
+            </p> */}
 
             <button
               onClick={resetGame}

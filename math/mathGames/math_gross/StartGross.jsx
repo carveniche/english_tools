@@ -56,9 +56,9 @@ function StartGross() {
                 </div>
 
                 {/* Features */}
-                <div className="grid grid-cols-2 gap-2 sm:gap-4 md:gap-6 max-w-3xl mx-auto">
+                <div className="grid grid-cols gap-2 sm:gap-4 md:gap-6 max-w-3xl mx-auto">
                   <Feature icon="🔢" title="Fun Puzzles" />
-                  <Feature icon="🧠" title="Brain Power" />
+                  {/* <Feature icon="🧠" title="Brain Power" /> */}
                 </div>
 
                 {/* How To Play */}
@@ -143,7 +143,7 @@ function Feature({ icon, title }) {
 function PuzzlePreview() {
   return (
     <div className="grid grid-cols-3 gap-1 sm:gap-2">
-      {[1, "+", 2, "=", "?", 3].map((c, i) => (
+      {[1, "+", 2, "=", "?"].map((c, i) => (
         <div
           key={i}
           className="w-7 h-7 sm:w-10 sm:h-10 md:w-14 md:h-14 flex items-center justify-center font-bold bg-gray-800 text-white border border-purple-300 rounded text-xs sm:text-lg md:text-2xl"
@@ -158,7 +158,7 @@ function PuzzlePreview() {
 function PuzzleSolved() {
   return (
     <div className="grid grid-cols-3 gap-1 sm:gap-2">
-      {[1, "+", 2, "=", 3, 3].map((c, i) => (
+      {[1, "+", 2, "=", 3,].map((c, i) => (
         <div
           key={i}
           className="w-7 h-7 sm:w-10 sm:h-10 md:w-14 md:h-14 flex items-center justify-center font-bold bg-emerald-700 text-white border border-emerald-300 rounded text-xs sm:text-lg md:text-2xl"

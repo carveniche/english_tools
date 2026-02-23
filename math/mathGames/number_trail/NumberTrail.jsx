@@ -453,7 +453,7 @@ function endDrag() {
       </div>
 
       {/* Prompt */}
-    <div className="w-fit overflow-hidden relative top-[4rem] xl:top-[1rem]">
+    <div className="w-fit overflow-hidden relative top-[3rem] xl:top-[1rem]">
   <AnimatePresence mode="wait">
     <motion.h1
       key={prompt} // triggers animation on change
@@ -478,7 +478,7 @@ function endDrag() {
 
 
       {/* Running Sum */}
-      <div className=" text-lg md:text-2xl font-semibold bg-white text-black  p-[1rem] rounded-lg">
+      <div className=" text-lg md:text-2xl font-semibold bg-white text-black mt-[1rem]  p-[1rem] rounded-lg">
         {sumDisplay} {sumDisplay ? "= " : ""}
         <b className="text-green-400">{sum}</b>
       </div>

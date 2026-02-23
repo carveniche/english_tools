@@ -100,7 +100,8 @@ if (startGame) {
   transition={{ duration: 0.6, ease: "easeOut" }}
 >
   <img
-    src="https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/selectTheLevel.png"
+    // src="https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/selectTheLevel.png"
+    src="https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/SelectingTheLevel.png"
     alt="selectTheLevel"
     className="h-[5rem]"
   />
@@ -160,11 +161,11 @@ if (startGame) {
         // style={{backgroundImage:"url(/startRushBtn.png)"}}
         className=" flex justify-center relative  items-center flex-row gap-[5px] text-[1rem] font-bold rounded-xl  text-[#FFFFFF] shadow-lg bg-center bg-cover bg-no-repeat"
       >
-        <img src="https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/slidestartPlaybtn.png" alt="slidestartPlaybtn" className="w-[5rem] absolute z-10 left-[-2.5rem] top-0" draggable={false}/>
+        {/* <img src="https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/slidestartPlaybtn.png" alt="slidestartPlaybtn" className="w-[5rem] absolute z-10 left-[-2.5rem] top-0" draggable={false}/> */}
         
 
-        <div className="flex justify-center relative  w-[14rem] items-center flex-row gap-[5px] text-[1rem] font-bold rounded-xl  text-[#FFFFFF] shadow-lg bg-center bg-cover bg-no-repeat">
-        <span className="w-full flex justify-center items-center h-full">
+        <div className="flex justify-center relative  w-[10rem] items-center flex-row gap-[5px] text-[1rem] font-bold rounded-xl  text-[#FFFFFF] shadow-lg bg-center bg-cover bg-no-repeat">
+        {/* <span className="w-full flex justify-center items-center h-full">
         <svg xmlns="http://www.w3.org/2000/svg" width="" height="" viewBox="0 0 317 85" fill="none">
   <path d="M316.454 42.0425V84.0851H0L0.00922366 42.0425V0H262.206L316.454 42.0425Z" fill="url(#paint0_linear_320_216911)"/>
   <defs>
@@ -177,7 +178,8 @@ if (startGame) {
 </span>
         <span className=" w-[85%] absolute flex justify-center items-start text-lg">
              PLAY {selected.toUpperCase()}
-        </span>
+        </span> */}
+        <img src="https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/PlayNowBtnRush.png" alt="PlayNowBtnRush" />
         </div>
       </motion.button>
 

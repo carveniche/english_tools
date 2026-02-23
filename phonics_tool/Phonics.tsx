@@ -13,6 +13,7 @@ import BlendEnd from "./json/lettterLettersound.json";
 // import opentype from 'opentype.js';
 import  "./phonics.css";
 import '../../index.css';
+import WriteLetterTab from "./WrittingLetter.tsx";
 type SingleItem = {
   id: string;
   lab: string;
@@ -827,7 +828,93 @@ function SentenceDecoder({ input, onTokenClick, onWordClick }: {
     return tokenToSoundMap[cleanToken] || tokenToSoundMap[token];
   };
 
+//   async function playWithGap(url: string | null, fallbackText: string, minGapMs = 80) {
+//   if (!url) {
+//     await speakTTS(fallbackText, { rate: 0.65 });
+//     await new Promise(r => setTimeout(r, minGapMs));
+//     return;
+//   }
+
+//   return new Promise<void>((resolve, reject) => {
+//     const audio = new Audio(url);
+//     activeAudios.add(audio);
+
+//     let ended = false;
+
+//     const finish = () => {
+//       if (ended) return;
+//       ended = true;
+//       activeAudios.delete(audio);
+//       setTimeout(resolve, minGapMs);
+//     };
+
+//     audio.onended = finish;
+//     audio.onerror = () => {
+//       activeAudios.delete(audio);
+//       speakTTS(fallbackText, { rate: 0.65 }).then(finish).catch(reject);
+//     };
+
+//     audio.play()
+//       .then(() => {
+//         // If very short sound (< ~60ms) force minimum gap
+//         setTimeout(finish, 400); // safety fallback
+//       })
+//       .catch(err => {
+//         activeAudios.delete(audio);
+//         if (err.name !== 'AbortError') {
+//           speakTTS(fallbackText, { rate: 0.65 }).then(finish).catch(reject);
+//         } else {
+//           reject(err);
+//         }
+//       });
+//   });
+// }
   // Function to play sound for a token, returning a Promise that resolves when playback completes
+async function playOneSound(url: string | null, fallbackText: string) {
+  // If no URL → just speak
+  if (!url) {
+    await speakTTS(fallbackText, { rate: 0.65 });
+    return;
+  }
+
+  return new Promise<void>((resolve, reject) => {
+    const audio = new Audio(url);
+    activeAudios.add(audio);
+
+    const MIN_DURATION_MS = 140;           // force at least this much time per sound
+    const GAP_AFTER_MS    = 80;           // breathing room after sound ends
+
+    let hasEnded = false;
+
+    const complete = () => {
+      if (hasEnded) return;
+      hasEnded = true;
+      activeAudios.delete(audio);
+      setTimeout(resolve, GAP_AFTER_MS);
+    };
+
+    audio.onended = complete;
+
+    audio.onerror = () => {
+      activeAudios.delete(audio);
+      speakTTS(fallbackText, { rate: 0.65 }).then(complete).catch(reject);
+    };
+
+    audio.play()
+      .then(() => {
+        // Safety: even if sound is very short, give minimum time
+        setTimeout(complete, MIN_DURATION_MS);
+      })
+      .catch(err => {
+        activeAudios.delete(audio);
+        if (err.name !== 'AbortError') {
+          speakTTS(fallbackText, { rate: 0.65 }).then(complete).catch(reject);
+        } else {
+          reject(err);
+        }
+      });
+  });
+}
   const playTokenSound = async (token: string, word: string, tokenIndex: number, tokens: string[]) => {
     const cleanToken = token.toLowerCase();
     const cleanWord = word.toLowerCase();
@@ -849,7 +936,7 @@ function SentenceDecoder({ input, onTokenClick, onWordClick }: {
     }
 
     console.log(`Playing token '${token}' in '${word}': URL = ${soundUrl}`);
-
+   await new Promise(resolve => setTimeout(resolve, 90));
     return new Promise<void>((resolve, reject) => {
       if (soundUrl) {
         try {
@@ -887,6 +974,7 @@ function SentenceDecoder({ input, onTokenClick, onWordClick }: {
       }
     });
   };
+  
 
   // Cleanup audio
   useEffect(() => {
@@ -919,9 +1007,10 @@ function SentenceDecoder({ input, onTokenClick, onWordClick }: {
     const wordText = wordEl.textContent || "";
     const isLetterSpellingWord = letterSpellingWords.has(wordText.toLowerCase());
     stopAllAudio();
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
+    window.speechSynthesis?.cancel();
+      // if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      //   window.speechSynthesis.cancel();
+      // }
 
     try {
       if (isLetterSpellingWord) {
@@ -932,15 +1021,45 @@ function SentenceDecoder({ input, onTokenClick, onWordClick }: {
           await speakTTS(letters[i], { rate: 0.8 });
           if (tokenEls[i]) tokenEls[i].classList.remove("bg-yellow-200");
         }
-      } else {
+      }
+       else {
         const tokenEls = Array.from(wordEl.querySelectorAll<HTMLElement>('[data-token]'));
         const tokens = tokenEls.map(el => el.textContent || "");
-        console.log(`Tokens for '${wordText}':`, tokens);
-        for (let i = 0; i < tokens.length; i++) {
-          tokenEls[i].classList.add("bg-yellow-200");
-          await playTokenSound(tokens[i], wordText, i, tokens);
-          tokenEls[i].classList.remove("bg-yellow-200");
+             for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+        tokenEls[i].classList.add("bg-yellow-200");
+
+        // ─── Get correct sound URL ─────────────────────────────────
+        let soundUrl = getVowelSound(wordText, token, i, tokens);
+
+        if (token.toLowerCase() === "ng" && !soundUrl) {
+          soundUrl = "https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/ng.mp3";
         }
+
+        // ─── Skip silent final e ───────────────────────────────────
+        const cleanToken = token.toLowerCase();
+        const cleanWord = wordText.toLowerCase();
+        if (
+          cleanToken === 'e' &&
+          cleanWord.endsWith('e') &&
+          i === tokens.length - 1
+        ) {
+          const vowelCount = cleanWord.split('').filter(c => 'aeiou'.includes(c)).length;
+          if (vowelCount >= 2) {
+            console.log(`Silent e skipped in ${wordText}`);
+            tokenEls[i].classList.remove("bg-yellow-200");
+            continue;
+          }
+        }
+
+        // ─── Play with proper gap logic ─────────────────────────────
+        await playOneSound(soundUrl, token);
+
+        tokenEls[i].classList.remove("bg-yellow-200");
+
+        // Small breath / separation between phonemes (most important!)
+        await new Promise(r => setTimeout(r, 100));   // ← 80–140 ms, tune this
+      }
       }
 
       await onWordClick(wordText);
@@ -1116,413 +1235,6 @@ function Decoding() {
           />
         </div>
       )}
-    </div>
-  );
-}
-function getLetterPath(letter: string, isUpper: boolean) {
-  const l = (letter || "a").toLowerCase();
-  const p=(x:number,y:number)=>({x,y});
-  const arc=(cx:number,cy:number,r:number,a0:number,a1:number,steps=16)=>{ const pts:any[]=[]; for(let i=0;i<=steps;i++){ const t=a0+(a1-a0)*i/steps; pts.push(p(cx+Math.cos(t)*r, cy+Math.sin(t)*r)); } return pts; };
-  const v=(x:number,y1:number,y2:number)=>[p(x,y1),p(x,y2)];
-  const h=(x1:number,x2:number,y:number)=>[p(x1,y),p(x2,y)];
-
-  const lower: Record<string, any[]> = {
-a: [
-[...arc(115,70,20,Math.PI*-2.9,Math.PI*-2)],
-v(135,65,170),
-  [...arc(100,130,35,Math.PI*-0.2,Math.PI*-1.9)],
-  
-],
-    b: [ v(60,50,180), [...arc(67,140,35,Math.PI*1.5,Math.PI*2.6)] ],
-    c: [ [...arc(100,130,40,Math.PI*-0.2,Math.PI*-1.8)] ],
-    d: [ v(140,50,180), [...arc(107,140,35,Math.PI*-2.2,Math.PI*-3.9)] ],
-    e: [h(68,135,120), [...arc(100,130,35,Math.PI*-0.1,Math.PI*-1.8)],  ],
-    f: [[...arc(120,60,20,Math.PI*-2,Math.PI*-2.6)],  v(110,40,170), h(80,140,90), ],
-    g: [ [...arc(102,130,30,Math.PI*-0.2,Math.PI*-1.8)], v(130,110,200) ,[...arc(110,200,20,Math.PI*1.9,Math.PI*2.8)]],
-    h: [ v(60,50,180), [p(60,110),p(100,90),p(130,110),p(130,180)] ],
-    i: [ v(100,110,180), [p(100,90),p(100,90.1)] ],
-    j: [ [p(120,110),p(120,180),p(110,195),p(95,195)], [p(120,90),p(120,90.1)] ],
-    k: [ v(60,50,180), [p(60,120),p(135,70)], [p(60,120),p(115,170)] ],
-    l: [ v(80,50,180) ],
-    m: [ v(50,110,180), [p(50,110),p(80,90),p(110,110),p(110,180)], [p(110,110),p(140,90),p(170,110),p(170,180)] ],
-    n: [ v(40,70,180), [p(40,110),p(55,90),p(85,78),p(120,78),p(145,90),p(160,110),p(160,180)] ],
-    o: [ [...arc(100,130,40,0,Math.PI*2)] ],
-    p: [ v(60,110,210), [...arc(75,140,35,Math.PI*1.4,Math.PI*2.7)] ],
-    q: [v(140,90,200), [...arc(100,130,40,0,Math.PI*-1.8)],  ],
-    r: [ v(60,110,180), [p(60,120),p(90,100),p(110,110)] ],
-    // s: [ [...arc(110,110,25,Math.PI*1.2,Math.PI*2.2)], [...arc(90,150,25,Math.PI*0.2,Math.PI*1.2)] ],
-     s: [[...arc(110, 100, 20, Math.PI * -0.4, Math.PI * -1.5)],[...arc(105, 140, 20, Math.PI * 1.5, Math.PI * 2.7)]],
-    t: [ v(100,50,180),[...arc(110,175,10,Math.PI*2.9,Math.PI*2)], h(75,125,90) ],
-    u: [ [p(60,110),p(60,150),p(80,170),p(100,170),p(120,150),p(120,110)] ],
-    v: [ [p(60,110),p(100,180),p(140,110)] ],
-    w: [ [p(50,110),p(80,180),p(110,110),p(140,180),p(170,110)] ],
-    x: [ [p(60,110),p(140,180)], [p(140,110),p(60,180)] ],
-    // y: [ [p(60,90),p(100,180),p(140,100)], [p(100,180),p(100,210)] ],
-    y: [ [p(60,80),p(100,120),p(140,80)], [p(100,120),p(100,180)]],
-    z: [ [p(60,110),p(140,110)], [p(140,110),p(60,180)], [p(60,180),p(140,180)] ],
-  };
-  const stemX = 60;      // vertical spine x
-const R = 50;          // bowl radius
-const cx = stemX; 
-  const upper: Record<string, any[]> = {
-    a: [ [p(60,180),p(100,60),p(140,180)], h(75,125,120) ],
-    b: [
-  v(stemX, 40, 200),                                // vertical spine
-  [...arc(cx,  85, 40, -0.5*Math.PI, 0.5*Math.PI)],  // upper bowl (RIGHT semicircle)
-  [...arc(cx, 160, 39, -0.5*Math.PI, 0.5*Math.PI)]   // lower bowl (RIGHT semicircle)
-],
-    c: [ [...arc(100,120,60,Math.PI*-0.3,Math.PI*-1.7)] ],
-    d: [ v(60, 50, 180),[...arc(60, 120, 60, -Math.PI/2, Math.PI/2)] ],
-    e: [ v(70,50,180), h(70,140,50), h(70,120,115), h(70,140,180) ],
-    f: [ v(80,50,180), h(80,140,50), h(80,120,100) ],
-    g: [[...arc(95, 120, 60, Math.PI * -0.3, Math.PI * -1.7)],v(130, 170, 130),h(130, 80, 130),],
-    h: [ v(60,50,180), v(140,50,180), h(60,140,120) ],
-    i: [ v(100,50,180) ],
-    j: [ [p(120,50),p(120,165),p(110,185),p(90,185)] ],
-    k: [ v(60,50,180), [p(60,110),p(140,60)], [p(60,110),p(140,170)] ],
-    l: [ v(80,50,180), h(80,140,180) ],
-    m: [ v(60,50,180), [p(60,50),p(100,120),p(140,50)], v(140,50,180) ],
-    n: [ v(60,50,180), [p(60,50),p(140,180)], v(140,180,40) ],
-    o: [ [...arc(100,120,60,0,Math.PI*2)] ],
-    p: [
-  v(60, 50, 180),
-  [...arc(75, 90, 39, Math.PI*-2.6, Math.PI*-1.4)],
-  // h(60, 90, 127),
-  //  h(60, 90, 50)
-]
-,
-    q: [ [...arc(100,120,60,0,Math.PI*2)], [p(125,145),p(155,190)] ],
-    r: [ v(60,50,180), [...arc(65,85,35,Math.PI*-0.5,Math.PI*0.5)], [p(75,115),p(110,180)] ],
- s: [[...arc(110, 100, 35, Math.PI * -0.3, Math.PI * -1.4)],[...arc(90, 170, 40, Math.PI * 1.5, Math.PI * 2.7)]],
-
-
-    t: [ h(70,130,50), v(100,50,180), ],
-    u: [ v(60,50,140), [...arc(100,140,40,Math.PI*3,Math.PI*2.1)], v(138,150,50) ],
-    v: [ [p(60,50),p(100,180),p(140,50)] ],
-    w: [ [p(50,50),p(80,180),p(110,50),p(140,180),p(170,50)] ],
-    x: [ [p(60,50),p(140,180)], [p(140,50),p(60,180)] ],
-    y: [ [p(60,50),p(100,120),p(140,50)], [p(100,120),p(100,180)] ],
-    z: [ [p(60,50),p(140,50)], [p(140,50),p(60,180)], [p(60,180),p(140,180)] ],
-  };
-
-  if (!isUpper && lower[l]) return lower[l];
-  if (isUpper && upper[l]) return upper[l];
-  return [ [p(40,40),p(160,40),p(160,180),p(40,180),p(40,40)] ];
-}
-
-
-
-
-function PathTracer({ letter, isUpper, onProgress }: { letter: string; isUpper: boolean; onProgress: (n: number) => void }) {
-  const svgRef = useRef<SVGSVGElement | null>(null);
-  const [progress, setProgress] = useState(0);
-  const [segIdx, setSegIdx] = useState(0);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [active, setActive] = useState(false);
-  const [lastT, setLastT] = useState(0); // ✅ track stroke progress
-
-  const strokes = useMemo(() => getLetterPath(letter, isUpper), [letter, isUpper]);
-
-  function getSegLen(points: { x: number; y: number }[]) {
-    let len = 0;
-    for (let i = 1; i < points.length; i++) {
-      const dx = points[i].x - points[i - 1].x;
-      const dy = points[i].y - points[i - 1].y;
-      len += Math.hypot(dx, dy);
-    }
-    return len;
-  }
-
-  function pointAlong(points: { x: number; y: number }[], t: number) {
-    const total = getSegLen(points);
-    let d = t * total;
-    for (let i = 1; i < points.length; i++) {
-      const p0 = points[i - 1], p1 = points[i];
-      const seg = Math.hypot(p1.x - p0.x, p1.y - p0.y);
-      if (d <= seg) {
-        const r = d / seg;
-        return { x: p0.x + (p1.x - p0.x) * r, y: p0.y + (p1.y - p0.y) * r };
-      }
-      d -= seg;
-    }
-    return points[points.length - 1];
-  }
-
-  useEffect(() => {
-    const p0 = pointAlong(strokes[0], 0);
-    setPos(p0);
-    setSegIdx(0);
-    setProgress(0);
-    setLastT(0);
-    setActive(false);
-  }, [strokes]);
-
-  function onPointerDownCircle(e:any) {
-    e.stopPropagation();
-    const svg = svgRef.current;
-    if (!svg) return;
-    svg.setPointerCapture(e.pointerId);
-    setActive(true);
-    // setLastT(0);
-  }
-
-  function onPointerMove(e:any) {
-    if (!active) return;
-    const svg = svgRef.current;
-    if (!svg) return;
-
-    const rect = svg.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const pts = strokes[segIdx];
-
-    let bestT = 0, bestD = Infinity;
-    const samples = 200;
-    for (let s = 0; s <= samples; s++) {
-      const t = s / samples;
-      const pt = pointAlong(pts, t);
-      const d = Math.hypot(pt.x - x, pt.y - y);
-      if (d < bestD) { bestD = d; bestT = t; }
-    }
-
-    // ✅ only allow forward dragging
-    if (bestT + 0.02 < lastT) return;
-
-    const pt = pointAlong(pts, bestT);
-    setPos(pt);
-    setLastT(bestT);
-
-    const segTotal = strokes.slice(0, segIdx).reduce((a:any, p:any) => a + getSegLen(p), 0);
-    const total = strokes.reduce((a:any, p:any) => a + getSegLen(p), 0);
-    const current = segTotal + getSegLen(pts) * bestT;
-    const prog = current / total;
-
-    setProgress(prog);
-    onProgress(prog);
-  }
-
-  function onPointerUp(e:any) {
-    if (!active) return;
-    const svg = svgRef.current;
-    if (!svg) return;
-    (svg as any).releasePointerCapture?.(e.pointerId);
-    setActive(false);
-
-    const pts = strokes[segIdx];
-    const end = pointAlong(pts, 1);
-    const nearEnd = Math.hypot(pos.x - end.x, pos.y - end.y) < 8;
-
-    if (nearEnd && segIdx < strokes.length - 1) {
-      setSegIdx(segIdx + 1);
-      setLastT(0);
-    }
-  }
-
-  return (
-    <div className="flex flex-col items-center">
-      <svg
-        ref={svgRef}
-        width={220}
-        height={230}
-        className="bg-slate-50 rounded-xl border-2 border-slate-200 touch-none"
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-      >
-        {/* dotted guide paths */}
-        {strokes.map((pts:any, i:any) => (
-          <polyline
-            key={i}
-            points={pts.map((p:any) => `${p.x},${p.y}`).join(" ")}
-            fill="none"
-            stroke="#60a5fa"
-            strokeWidth={5}
-            strokeDasharray="1 10"
-            strokeLinecap="round"
-          />
-        ))}
-
-        {/* clickable start circles */}
-        {strokes.map((pts:any, i:any) => (
-          <circle
-            key={`start-${i}`}
-            cx={pts[0].x}
-            cy={pts[0].y}
-            r={7}
-            fill={ i === segIdx ?'yellow':'lightgrey'}
-            style={{ cursor: i === segIdx ? "pointer" : "not-allowed" }}
-            onPointerDown={i === segIdx ? onPointerDownCircle : undefined}
-          />
-        ))}
-
-        {/* solid drawn strokes */}
-        {strokes.slice(0, segIdx + 1).map((pts:any, i:any) => {
-          const isCurrent = i === segIdx;
-          const total = strokes.reduce((a:any, p:any) => a + getSegLen(p), 0);
-          const prev = strokes.slice(0, i).reduce((a:any, p:any) => a + getSegLen(p), 0);
-          const local = isCurrent
-            ? Math.max(0, Math.min(1, (progress * total - prev) / getSegLen(pts)))
-            : 1;
-          const steps = 150;
-          const drawn: any[] = [];
-          for (let s = 0; s <= steps; s++) {
-            const tt = Math.min(1, (s / steps) * local);
-            drawn.push(pointAlong(pts, tt));
-          }
-          return (
-            <polyline
-              key={`solid-${i}`}
-              points={drawn.map(p => `${p.x},${p.y}`).join(" ")}
-              fill="none"
-              stroke="#1d4ed8"
-              strokeWidth={5}
-              strokeLinecap="round"
-            />
-          );
-        })}
-
-        {/* draggable marker */}
-        <circle
-          cx={pos.x}
-          cy={pos.y}
-          r={9}
-          fill="green"
-          stroke="white"
-          strokeWidth={2}
-          style={{
-    cursor: active ? "grabbing" : "grab",
-    boxShadow: active ? "0 0 10px 2px #ff8652" : "none",
-    animation: active ? "blink 0.8s infinite alternate" : "none"
-  }}
-          onPointerDown={onPointerDownCircle}
-        />
-      </svg>
-    </div>
-  );
-}
-
-
-
-function WriteLetter() {
-  const [val, setVal] = useState("a");
-  const [upperDone, setUpperDone] = useState(0);
-  const [lowerDone, setLowerDone] = useState(0);
-  // Use a more lenient threshold to handle floating-point precision
-  const done = upperDone >= 0.99 && lowerDone >= 0.99;
-
-  // Inject dotted handwriting font
-  useEffect(() => {
-    const id = "handwriting-font-style";
-    if (document.getElementById(id)) return;
-    const style = document.createElement("style");
-    style.id = id;
-    style.innerHTML = `
-      @font-face { font-family: 'KGPrimaryDots'; src: url('/fonts/KGPrimaryDots.ttf') format('truetype'); font-display: swap; }
-      @font-face { font-family: 'Dotline'; src: url('/fonts/Dotline.ttf') format('truetype'); font-display: swap; }
-      .handwriting { font-family: 'KGPrimaryDots','Dotline','Patrick Hand','Comic Sans MS',cursive; }
-      .dotted-text { font-family: 'KGPrimaryDots','Dotline','Patrick Hand','Comic Sans MS',cursive; letter-spacing: 2px; }
-    `;
-    document.head.appendChild(style);
-  }, []);
-
-  // Reset progress when the letter changes
-  useEffect(() => {
-    setUpperDone(0);
-    setLowerDone(0);
-  }, [val]);
-
-  // Function to handle Next button click
-  const handleNext = () => {
-    const nextLetter = String.fromCharCode(val.charCodeAt(0) + 1);
-    if (/^[a-zA-Z]$/.test(nextLetter)) {
-      // console.log('hello')
-    setVal(nextLetter);
-    }else{
-      // console.log('h')
-      setVal('b');
-    }
-  };
-
-  // Function to handle Prev button click
-  const handlePrev = () => {
-    const prevLetter = String.fromCharCode(val.charCodeAt(0) - 1);
-    setVal(prevLetter);
-  };
-
-  // Handle input change with validation
-  const handleInputChange = (e:any) => {
-    const input = e.target.value.slice(0, 1); // Restrict to single character
-    if (/^[a-zA-Z]$/.test(input)) { // Only allow alphabetic letters
-      setVal(input.toLowerCase());
-    } else if (input === "") { // Allow clearing the input
-      setVal("");
-    }
-  };
-
-  // Calculate progress percentage
-  const progressPercent = Math.round((upperDone * 50 + lowerDone * 50));
-
-  return (
-    <div className={`relative rounded-2xl border-4 border-blue-300 p-5 handwriting ${done ? "bg-green-400" : "bg-white"}`}>
-      <div className="flex gap-3 items-center mt-[1rem]">
-        <input 
-          value={val} 
-          onChange={handleInputChange}
-          className="px-3 py-2 rounded-lg border-2 border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-400 text-lg w-40" 
-          placeholder="Enter a letter"
-          maxLength={1}
-        />
-        <div className="flex-1 flex items-center gap-3">
-          <div className="h-3 flex-1 bg-slate-200 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-green-500 transition-all" 
-              style={{ width: `${progressPercent}%` }} 
-            />
-          </div>
-          <div className="min-w-[60px] text-sm font-bold text-slate-700">
-            {progressPercent}%
-          </div>
-        </div>
-        {done && val.toLowerCase() !== 'z' && (
-          <button 
-            onClick={handleNext}
-            className="absolute right-0 top-0 px-4 py-2 rounded-lg font-bold shadow bg-green-600 text-white hover:bg-green-700"
-          >
-            Next
-          </button>
-        )}
-        {done && val.toLowerCase() === 'z' && (
-          <button 
-            onClick={handlePrev}
-            className="px-4 py-2 rounded-lg font-bold shadow bg-blue-600 text-white hover:bg-blue-700"
-          >
-            Prev
-          </button>
-        )}
-        {/* {!done && (
-          <button 
-            disabled={true} 
-            className="px-4 py-2 rounded-lg font-bold shadow bg-slate-300 text-slate-500 cursor-not-allowed"
-          >
-            Next
-          </button>
-        )} */}
-      </div>
-
-      <div className="flex items-center justify-center gap-8 mb-2">
-        <div className="text-6xl dotted-text select-none">{(val || "A").toUpperCase()}</div>
-        <div className="text-6xl dotted-text select-none">{(val || "a").toLowerCase()}</div>
-      </div>
-      <div className="grid sm:grid-cols-2 gap-6">
-        <div>
-          <div className="text-center font-bold text-slate-600 mb-2">Uppercase</div>
-          <PathTracer letter={val} isUpper onProgress={setUpperDone} />
-        </div>
-        <div>
-          <div className="text-center font-bold text-slate-600 mb-2">Lowercase</div>
-          <PathTracer letter={val} isUpper={false} onProgress={setLowerDone} />
-        </div>
-      </div>
-      <p className="text-slate-500 text-sm mt-3">The dot can only move along the dotted path.</p>
     </div>
   );
 }
@@ -1886,7 +1598,7 @@ function getAudioUrlForPhoneme(phonemeId: string): string | undefined {
           {active === "Blending Board" && (<BlendingBoard selection={blendSel} onClear={()=> setBlendSel([])} onBlend={doBlend} />)}
           {active === "Make the Word" && (<MakeTheWord tiles={makeA} onClear={()=> setMakeA([])} />)}
           {active === "Decoding" && <Decoding />}
-          {active === "Write the Letter" && <WriteLetter />}
+          {active === "Write the Letter" && <WriteLetterTab />}
         </div>
           {!active && (
           <div className="mt-2">
@@ -1908,3 +1620,76 @@ function getAudioUrlForPhoneme(phonemeId: string): string | undefined {
     </div>
   );
 }
+
+
+// async function playWordSequence(wordEl: HTMLElement | null) {
+//   if (!wordEl) return;
+//   setIsPlaying(true);
+//   const wordText = wordEl.textContent || "";
+//   const isLetterSpellingWord = letterSpellingWords.has(wordText.toLowerCase());
+//   stopAllAudio();
+//   window.speechSynthesis?.cancel();
+
+//   try {
+//     if (isLetterSpellingWord) {
+//       // keep your existing letter-by-letter logic (unchanged)
+//       const letters = wordText.split('');
+//       const tokenEls = Array.from(wordEl.querySelectorAll<HTMLElement>('[data-token]'));
+//       for (let i = 0; i < letters.length; i++) {
+//         if (tokenEls[i]) tokenEls[i].classList.add("bg-yellow-200");
+//         await speakTTS(letters[i], { rate: 0.8 });
+//         if (tokenEls[i]) tokenEls[i].classList.remove("bg-yellow-200");
+//       }
+//     } else {
+//       // ────────────────────────────────────────────────────────
+//       //           NORMAL WORD – PHONEME BY PHONEME
+//       // ────────────────────────────────────────────────────────
+//       const tokenEls = Array.from(wordEl.querySelectorAll<HTMLElement>('[data-token]'));
+//       const tokens = tokenEls.map(el => el.textContent || "");
+
+//       console.log(`Playing word: ${wordText} → tokens:`, tokens);
+
+//       for (let i = 0; i < tokens.length; i++) {
+//         const token = tokens[i];
+//         tokenEls[i].classList.add("bg-yellow-200");
+
+//         // ─── Get correct sound URL ─────────────────────────────────
+//         let soundUrl = getVowelSound(wordText, token, i, tokens);
+
+//         if (token.toLowerCase() === "ng" && !soundUrl) {
+//           soundUrl = "https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/ng.mp3";
+//         }
+
+//         // ─── Skip silent final e ───────────────────────────────────
+//         const cleanToken = token.toLowerCase();
+//         const cleanWord = wordText.toLowerCase();
+//         if (
+//           cleanToken === 'e' &&
+//           cleanWord.endsWith('e') &&
+//           i === tokens.length - 1
+//         ) {
+//           const vowelCount = cleanWord.split('').filter(c => 'aeiou'.includes(c)).length;
+//           if (vowelCount >= 2) {
+//             console.log(`Silent e skipped in ${wordText}`);
+//             tokenEls[i].classList.remove("bg-yellow-200");
+//             continue;
+//           }
+//         }
+
+//         // ─── Play with proper gap logic ─────────────────────────────
+//         await playOneSound(soundUrl, token);
+
+//         tokenEls[i].classList.remove("bg-yellow-200");
+
+//         // Small breath / separation between phonemes (most important!)
+//         await new Promise(r => setTimeout(r, 100));   // ← 80–140 ms, tune this
+//       }
+//     }
+
+//     await onWordClick(wordText);
+//   } catch (err) {
+//     console.error(`Playback error in "${wordText}":`, err);
+//   } finally {
+//     setIsPlaying(false);
+//   }
+// }

@@ -1,0 +1,89 @@
+.fancy-button-for-next-level {
+  padding: 14px 22px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb);
+  color: #fff;
+  font-weight: 800;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+.start-row-style{
+    position: relative;
+    display: grid;
+    gap: 16;
+    place-items: center;
+}
+.celebrate-style-box{
+    position: absolute;
+    inset: 0;
+    background: #000c;
+    display: grid;
+    place-items: center;
+    z-index: 1000;
+}
+.puzzle-words-box-styles{
+    height: 40;
+    display: grid;
+    place-items: center;
+    border-radius: 12;
+    font-weight: 1000;
+    letter-spacing: 1;
+}
+.customScroll {
+  overflow-y: auto;
+  padding-right: 4;
+  max-height: 100%;
+  scrollbar-width: thin; /* Firefox */
+}
+
+/* Chrome, Edge, Safari */
+.customScroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.customScroll::-webkit-scrollbar-track {
+  background: #f0fff4;
+  border-radius: 8px;
+}
+
+.customScroll::-webkit-scrollbar-thumb {
+  background: lightgrey;
+  border-radius: 8px;
+  border: 2px solid #f0fff4;
+}
+
+.customScroll::-webkit-scrollbar-thumb:hover {
+  background: #22c55e;
+}
+
+.inner-scroll-bar-box{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8;
+}
+.words-back-image-box-container{
+    background-image: url('https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/puzzleBg.webp');
+    border-radius: 16;
+    padding: 10;
+    box-sizing: border-box;
+    box-shadow:0 8px 20px rgba(0,0,0,.12) ;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    position: relative;
+}
+.data-loader-box-bg-container{
+    text-align: center;
+    font-weight: 900;
+    color: white;
+    width: 100%;
+    height: 100;
+    line-height: 80px;
+    background-image: url('https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/board.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}

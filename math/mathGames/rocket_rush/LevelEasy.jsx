@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { generateQuestions } from "./questionGenerator";
 import { motion, AnimatePresence } from "framer-motion";
-
+import Lottie from "lottie-react";
+import rocketAnim from "./IdleLoop.json"; 
 // 🎉 Random feedback lines
 const FEEDBACKS = [
   "🚀 Amazing flying, Captain!",
@@ -36,7 +37,9 @@ function LevelEasy({difficulty,onExit,stopBgMusic}) {
   // ---------------------------
   const wrongAudioRef = useRef(null);
   const rightAudioRef = useRef(null);
-
+  const hatRickSoundRef = useRef(null);
+  const tenPointSoundRef=useRef(null);
+  const fifteenPointRef =useRef(null);
   // ---------------------------
   // Game Data
   // ---------------------------
@@ -65,7 +68,12 @@ const sets = questions.map((q) => q.options);
 const TRAIL_COLORS = ["#00f0ff", "#ff00ff", "#00ff5a", "#ffaa00"];
 const currentTrailColor = TRAIL_COLORS[currentSet % TRAIL_COLORS.length];
 const endReportedRef = useRef(false);
-
+const [showTheHatrickPop,setShowTheHatrickPop]=useState(false)
+const [endshowTheHatrickPop,setEndShowTheHatrickPop]=useState(false)
+const [showHattrickBoard, setShowHattrickBoard] = useState(false);
+const [showFiftyPercent,setShowFiftyPercent]=useState(false)
+const [almostCompleted,setAlmostCompleted]=useState(false)
+const [celebrationLock, setCelebrationLock] = useState(false);
 
   const [storingTime, setStoringTime] = useState(0);
   const timerRef = useRef(null);
@@ -100,6 +108,9 @@ const endReportedRef = useRef(false);
   useEffect(() => {
     wrongAudioRef.current = new Audio("https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/NOPE.mp3");
     rightAudioRef.current = new Audio("https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/gotIt.mp3");
+    hatRickSoundRef.current =new Audio('https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/hatRickSound.mp3')
+    tenPointSoundRef.current =new Audio('https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/tenPointsAway.mp3')
+    fifteenPointRef.current =new Audio('https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/fifteenPointAway.mp3')
   }, []);
 
   // ---------------------------
@@ -132,11 +143,100 @@ const endReportedRef = useRef(false);
     };
   }, [currentSet]);
 
+  useEffect(()=>{
+    let timer;
+// if (score > 0 && score % 3 === 0) {
+
+//     setShowTheHatrickPop(true)
+//        timer = setTimeout(() => {
+//       setShowTheHatrickPop(false);
+//       setEndShowTheHatrickPop(true);
+//     }, 3000);
+//         if (hatRickSoundRef.current) {
+//           hatRickSoundRef.current.currentTime = 0;
+//         hatRickSoundRef.current.volume = 0.9;
+
+//           hatRickSoundRef.current.play();
+//         }
+//     }
+     if(score == 10){
+      if (tenPointSoundRef.current) {
+          tenPointSoundRef.current.currentTime = 0;
+        tenPointSoundRef.current.volume = 0.9;
+
+          tenPointSoundRef.current.play();
+        }
+    }
+    else if(score == 16){
+      if (fifteenPointRef.current) {
+          fifteenPointRef.current.currentTime = 0;
+        fifteenPointRef.current.volume = 0.9;
+
+          fifteenPointRef.current.play();
+        }
+    }
+      return () => {
+    if (timer) clearTimeout(timer);
+  };
+  },[score])
+ 
+//   useEffect(() => {
+//   let timer;
+
+//   if (score === 3) {
+//     setShowHattrickBoard(true);
+
+//     timer = setTimeout(() => {
+//       setShowHattrickBoard(false);
+//     }, 3000); // ⏱️ close after 3 sec
+//   }else if(score === 10){
+//     setShowFiftyPercent(true)
+//       timer = setTimeout(() => {
+//       setShowFiftyPercent(false);
+//     }, 3000);
+//   }
+//   else if(score === 16){
+//     setAlmostCompleted(true)
+//       timer = setTimeout(() => {
+//       setAlmostCompleted(false);
+//     }, 3000);
+//   }
+
+//   return () => {
+//     if (timer) clearTimeout(timer);
+//   };
+// }, [score]);
+
+
+useEffect(() => {
+  let timer;
+
+  if ( score === 10 || score === 16) {
+    setCelebrationLock(true); // 🔒 LOCK INPUT
+
+    // if (score === 3) setShowHattrickBoard(true);
+    if (score === 10) setShowFiftyPercent(true);
+    if (score === 16) setAlmostCompleted(true);
+
+    timer = setTimeout(() => {
+      setShowHattrickBoard(false);
+      setShowFiftyPercent(false);
+      setAlmostCompleted(false);
+      setCelebrationLock(false); // 🔓 UNLOCK INPUT
+    }, 3000);
+  }
+
+  return () => {
+    if (timer) clearTimeout(timer);
+  };
+}, [score]);
+
   // ---------------------------
   // Click handler
   // ---------------------------
   const handleOptionClick = (option) => {
-    if (locked) return;
+    // if (locked) return;
+    if (locked || celebrationLock) return; 
 
     setLocked(true);
     setSelectedOption(option);
@@ -185,7 +285,7 @@ const endReportedRef = useRef(false);
   useEffect(()=>{
     startTimer()
   },[])
-  console.log(storingRef.current,"storingRef.current")
+  // console.log(storingRef.current,"storingRef.current")
   // ---------------------------
   // END SCREEN STATS
   // ---------------------------
@@ -308,9 +408,9 @@ if (currentSet >= sets.length) {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.9 }}
           >
-            <div className="font-mono hidden md:block">1. Score --------- <b className="text-green-600">{correct}</b></div>
-            <div className="font-mono hidden md:block">2. Total Questions ----------- <b className="text-yellow-500">{totalQuestions}</b></div>
-            <div className="font-mono hidden md:block">3. Accuracy ------------ <b className="text-orange-500">{accuracy}%</b></div>
+            <div className="font-mono hidden md:block">1. Score ---- <b className="text-green-600">{correct}</b></div>
+            <div className="font-mono hidden md:block">2. Total Questions ----- <b className="text-yellow-500">{totalQuestions}</b></div>
+            <div className="font-mono hidden md:block">3. Accuracy ----- <b className="text-orange-500">{accuracy}%</b></div>
              <div className="font-mono block  md:hidden">1. Score  <b className="text-green-600">{correct}</b></div>
             <div className="font-mono block md:hidden">2. Total Questions  <b className="text-yellow-500">{totalQuestions}</b></div>
             <div className="font-mono block md:hidden">3. Accuracy  <b className="text-orange-500">{accuracy}%</b></div>
@@ -357,9 +457,162 @@ if (currentSet >= sets.length) {
   // ---------------------------
   return (
     <div
-      className="w-full h-full flex flex-col gap-[1rem] items-center justify-between bg-no-repeat bg-center bg-cover rounded-lg overflow-hidden p-[0.5rem]"
+      className="w-full h-full flex flex-col gap-[1rem] items-center justify-between bg-no-repeat bg-center bg-cover rounded-lg overflow-hidden p-[0.5rem] relative"
       style={{ backgroundImage: "url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/EasyLevelBg.png)" }}
     >
+      {/* <AnimatePresence>
+  {showHattrickBoard && (
+    <motion.div
+      className="w-[90%] mx-auto absolute left-[10%] md:left-[30%] lg:left-[40%] -translate-x-1/2 top-[5%] z-50"
+      initial={{ y: -200, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: -200, opacity: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      <div className="w-[18rem] md:w-[22rem] flex justify-center items-center relative">
+  <img
+        src="/hattrickGlowBoard.png"
+        alt="Hattrick"
+        className="w-[18rem] md:w-[22rem]"
+        draggable={false}
+      />
+        <Lottie
+  animationData={rocketAnim}
+  loop={false}
+  className="w-[200px] h-[200px] absolute right-[1rem]"
+/>
+      </div>
+    
+    </motion.div>
+  )}
+</AnimatePresence> */}
+
+      <AnimatePresence>
+  {showFiftyPercent && (
+    <motion.div
+      className="w-[90%] mx-auto absolute left-[10%] md:left-[30%] lg:left-[40%] -translate-x-1/2 top-[5%] z-50"
+      initial={{ y: -200, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: -200, opacity: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      <div className="w-[18rem] md:w-[22rem] flex justify-center items-center relative">
+  <img
+        src="https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/fiftyPercenteComplete.png"
+        alt="fiftyPercenteComplete"
+        className="w-[18rem] md:w-[22rem]"
+        draggable={false}
+      />
+        <Lottie
+  animationData={rocketAnim}
+  loop={false}
+  className="w-[200px] h-[200px] absolute right-[1rem]"
+/>
+      </div>
+    
+    </motion.div>
+  )}
+</AnimatePresence>
+      <AnimatePresence>
+  {almostCompleted && (
+    <motion.div
+      className="w-[90%] mx-auto absolute left-[10%] md:left-[30%] lg:left-[40%] -translate-x-1/2 top-[5%] z-50"
+      initial={{ y: -200, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: -200, opacity: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      <div className="w-[18rem] md:w-[22rem] flex justify-center items-center relative">
+  <img
+        src="https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/AlmostCompltedImage.png"
+        alt="AlmostCompltedImage"
+        className="w-[18rem] md:w-[22rem]"
+        draggable={false}
+      />
+        <Lottie
+  animationData={rocketAnim}
+  loop={false}
+  className="w-[210px] h-[210px] absolute right-[0rem]"
+/>
+      </div>
+    
+    </motion.div>
+  )}
+</AnimatePresence>
+
+      {/* {showTheHatrickPop && (
+  <div className="absolute w-full h-full inset-0 flex justify-center items-center pointer-events-none">
+    <motion.div
+      className="flex justify-center items-center"
+      initial={{
+        x: -600,
+        y: 400,
+        rotate: -25,
+        scale: 0.4,
+        opacity: 0,
+      }}
+      animate={{
+        x: [ -600, -200, 0 ],
+        y: [ 400, 100, 0 ],
+        rotate: [ -25, -10, 0 ],
+        scale: [ 0.4, 0.9, 1 ],
+        opacity: [ 0, 1, 1 ],
+      }}
+      transition={{
+        duration: 1.4,
+        times: [0, 0.6, 1],
+        ease: ["easeIn", "linear", "easeOut"],
+      }}
+    >
+    
+
+      <img
+        src="/slandingPopupUi.png"
+        alt="slandingPopupUi"
+        className="w-[15rem]"
+      />
+    </motion.div>
+  </div>
+)} */}
+{/* {endshowTheHatrickPop&&(
+    <div className="absolute border border-red-400 w-full h-full inset-0 flex justify-center items-center pointer-events-none">
+    <motion.div
+      className="flex justify-center items-center"
+      initial={{
+        x: -600,
+        y: 400,
+        rotate: -25,
+        scale: 0.4,
+        opacity: 0,
+      }}
+      animate={{
+        x: [ -600, -200, 0 ],
+        y: [ 400, 100, 0 ],
+        rotate: [ -25, -10, 0 ],
+        scale: [ 0.4, 0.9, 1 ],
+        opacity: [ 0, 1, 1 ],
+      }}
+      transition={{
+        duration: 1.4,
+        times: [0, 0.6, 1],
+        ease: ["easeIn", "linear", "easeOut"],
+      }}
+    >
+        <Lottie
+  animationData={rocketAnim}
+  loop={false}
+  className="w-[300px] h-[300px]"
+/>
+      <img
+        src="/slandingPopupUi.png"
+        alt="slandingPopupUi"
+        className="w-[15rem]"
+      />
+    </motion.div>
+  </div>
+)} */}
+
+
       {/* Score */}
       {/* <div className="w-full  flex justify-end gap-[1rem] px-2">
         <div className="text-white">Score: {score}</div>
@@ -430,7 +683,7 @@ if (currentSet >= sets.length) {
 
       {/* Options */}
       <div className="relative w-full h-full flex justify-center items-end overflow-hidden ">
-        <img src="https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/astroRocks.png" alt="astroRocks" className="absolute top-[-0.3rem] w-full z-20" draggable={false}/>
+        <img src="https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/astroRocks.png" alt="astroRocks" className="absolute h-[2rem]  md:h-[5rem]  top-[-0.3rem]  xl:h-auto md:top-[2.7rem] lg:top-[-0.3rem] w-full z-20" draggable={false}/>
         {renderSet && (
           <div
             ref={containerRef}
@@ -438,8 +691,10 @@ if (currentSet >= sets.length) {
             className="flex justify-evenly items-center w-full"
             style={{
               position: "absolute",
-              bottom: move ? "500px" : "0px",
-              transition: "bottom 10s linear",
+              // bottom: move ? "500px" : "0px",
+              bottom: move && !celebrationLock ? "500px" : "0px",
+              // transition: "bottom 10s linear",
+              transition: celebrationLock ? "none" : "bottom 10s linear",
               gap: "1rem",
             }}
           >
