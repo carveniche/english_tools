@@ -1289,17 +1289,17 @@ export default function VocabTool({ toolData }: VocabToolProps) {
             scrollbar-width: none;
           }
           @media (max-width: 640px) {
-            .card-container {
+            .card-container-voc {
               height: 50vh;
             }
           }
           @media (min-width: 641px) and (max-width: 768px) {
-            .card-container {
+            .card-container-voc {
               height: 50vh;
             }
           }
           @media (min-width: 769px) {
-            .card-container {
+            .card-container-voc {
               height: 50vh;
             }
           }
@@ -1454,7 +1454,7 @@ export default function VocabTool({ toolData }: VocabToolProps) {
 </button>
             </div>
           )}
-          <div className='relative card-container'>
+          <div className='relative card-container-voc'>
             {prev && (
               <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-[80vw] sm:w-[280px] md:w-[320px] h-[80%] sm:h-[85%] rounded-3xl ${COLORS.dim}`}>
                 <div className='w-full h-full rounded-3xl overflow-hidden'>

@@ -64,7 +64,7 @@ export default function WordSearchA1() {
   const [selectedLevel, setSelectedLevel] = useState(
     currentSet?.word_list?.[0]?.level || "Easy",
   );
-  console.log(storingRef,"elapsedRef")
+  // console.log(storingRef,"elapsedRef")
 
 // START TIMER
 
@@ -546,10 +546,31 @@ const fetchNewWords = async (data_set_id, level) => {
   }
 };
 
-    const handleNextLevel = async () => {
-  if (!currentSet) return;
+//     const handleNextLevel = async () => {
+//   if (!currentSet) return;
+//   setLoading(true);
+//   setCelebrate(false);
+//   setTimespentSubmitted(false);
 
-  // stopTimer(); // stop old timer
+//   const level = currentSet.word_list[0].level;
+//   const currentDataSetId = currentSet.word_list[0].data_set_id;
+
+//   const newData = await fetchNewWords(currentDataSetId, level);
+
+//   if (newData) {
+//     setLevelIdx((prev) => prev + 1);
+//     setFound(new Set());
+//     setRings([]);
+//     setHandleBack(false);
+
+//     restartTimer(); // ✅ clean restart
+//   }
+
+//   setLoading(false);
+// };
+
+const handleNextLevel = async () => {
+  if (!currentSet) return;
 
   setLoading(true);
   setCelebrate(false);
@@ -560,19 +581,22 @@ const fetchNewWords = async (data_set_id, level) => {
 
   const newData = await fetchNewWords(currentDataSetId, level);
 
-  if (newData) {
+  if (newData && newData.word_list?.[0]?.words?.length > 0) {
+    // ✅ Valid new puzzle
     setLevelIdx((prev) => prev + 1);
     setFound(new Set());
     setRings([]);
     setHandleBack(false);
-
-    restartTimer(); // ✅ clean restart
+    restartTimer();
+  } else {
+    // 🔥 No words returned → trigger DailyLimitCard
+    setToolData(null);
+    setCurrentSet(null);
+    setPuzzle(null);
   }
 
   setLoading(false);
 };
-
-
 const handleCloseButton = () => {
   if (!currentSet) return;
 

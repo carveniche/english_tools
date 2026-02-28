@@ -11,6 +11,7 @@ function FindTheWordsParent() {
       console.log("No backend data yet");
       return;
     }
+    // setSendingBackendData(data)
     setSendingBackendData(backendDataRef.current);
     setStartThePage(true);
     console.log(sendingBackendData, "start btn sendingBackendData");
@@ -20,12 +21,12 @@ function FindTheWordsParent() {
     backendDataRef.current = response.data;
   }
   window.gettingSightData = gettingSightData;
-  //  const data = [
-  //     { position: 888,
-  //       is_completed:false,
-  //       words_completed:false,
-  //        words: ['between','althrough','uncommitted','hhh','jjj'] },
-  //   ];
+   const data = [
+      { position: 888,
+        is_completed:false,
+        words_completed:true,
+         words: ['between','althrough','uncommitted','hhh','jjj'] },
+    ];
 
   // const [sendingBackendData,setSendingBackendData]=useState(data);
 
