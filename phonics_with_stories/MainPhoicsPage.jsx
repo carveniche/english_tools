@@ -158,8 +158,8 @@ function MainPhoicsPage() {
       ],
     },
   ];
-  // const [backend_data, setBackend_data] = useState(story_data[0].data[0]);
-  const [backend_data, setBackend_data] = useState(null);
+  const [backend_data, setBackend_data] = useState(story_data[0].data[0]);
+  // const [backend_data, setBackend_data] = useState(null);
   
   const [openingThePage, setOpeningThePage] = useState(false);
 

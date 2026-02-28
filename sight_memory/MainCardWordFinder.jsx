@@ -125,8 +125,8 @@ const MainCardWordFinder = forwardRef(
     const handleTimspent = (data) => {
        if (showingDailyLimitRef.current) return;
        if (showingAllCardLimitRef.current) return;
-      if (typeof sendingTimespent === "function") {
-        sendingTimespent(data);
+      if (typeof window.sendingTimespent === "function") {
+        window.sendingTimespent(data);
       } else {
         console.log("not found sendingTimespent function");
       }

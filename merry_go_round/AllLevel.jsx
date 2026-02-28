@@ -84,7 +84,7 @@ function AllLevel({ backendData }) {
       <h3>Level: {currentLevelIndex + 1}</h3> */}
 
       <hr />
-   <div className="h-full w-full flex justify-center items-center">
+   <div className="h-full w-full flex justify-center items-center border border-red-800">
       {renderLevel()}
       </div>
 

@@ -30,11 +30,24 @@ const isValidQuestion = (q) => {
 
 function QuizPage({ quizData = [], onQuizComplete,time_spent,level_id }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  // const question = quizData[currentIndex];
-    if (!Array.isArray(quizData) || quizData.length === 0) {
-    return <div className="text-center text-white">Loading quiz...</div>;
-  }
+
+
+// console.log(time_spent,'time_spent')
+  const [letters, setLetters] = useState([]);
+  const [result, setResult] = useState(null);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [isCorrect, setIsCorrect] = useState(false);
+  const [filledWord, setFilledWord] = useState(null);
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  const [showOgImage, setShowOgImage] = useState(false);
+  const storingRef =useRef(time_spent)
+  const levelIdRef =useRef(level_id)
   const question = quizData?.[currentIndex];
+  
+    // const question = quizData[currentIndex];
+  //   if (!Array.isArray(quizData) || quizData.length === 0) {
+  //   return <div className="text-center text-white">Loading quiz...</div>;
+  // }
   useEffect(() => {
   if (!quizData?.length) return;
 
@@ -55,17 +68,6 @@ function QuizPage({ quizData = [], onQuizComplete,time_spent,level_id }) {
     onQuizComplete();
   }
 }, [currentIndex, quizData]);
-
-// console.log(time_spent,'time_spent')
-  const [letters, setLetters] = useState([]);
-  const [result, setResult] = useState(null);
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [isCorrect, setIsCorrect] = useState(false);
-  const [filledWord, setFilledWord] = useState(null);
-  const [quizCompleted, setQuizCompleted] = useState(false);
-  const [showOgImage, setShowOgImage] = useState(false);
-  const storingRef =useRef(time_spent)
-  const levelIdRef =useRef(level_id)
 
   const speakFeedback = (text) => {
     speechSynthesis.cancel();
@@ -202,21 +204,28 @@ function QuizPage({ quizData = [], onQuizComplete,time_spent,level_id }) {
       }
     }, [quizCompleted]);
 
-  if (quizCompleted) {
-    return (
-      <></>
-      // <div className="flex flex-col items-center gap-6">
-      //   {/* quiz UI */}
+  // if (quizCompleted) {
+  //   return (
+  //     <></>
+  //     // <div className="flex flex-col items-center gap-6">
+  //     //   {/* quiz UI */}
 
-        // <button
-        //   onClick={nextQuiz}
-        //   className="px-6 py-3 bg-blue-500 text-white rounded-xl"
-        // >
-        //   Next →
-        // </button>
-      // </div>
-    );
-  }
+  //       // <button
+  //       //   onClick={nextQuiz}
+  //       //   className="px-6 py-3 bg-blue-500 text-white rounded-xl"
+  //       // >
+  //       //   Next →
+  //       // </button>
+  //     // </div>
+  //   );
+  // }
+  if (!Array.isArray(quizData) || quizData.length === 0) {
+  return <div className="text-center text-white">Loading quiz...</div>;
+}
+
+if (quizCompleted) {
+  return <></>;
+}
 
   return (
     <div className="w-full h-full flex items-center justify-center relative">

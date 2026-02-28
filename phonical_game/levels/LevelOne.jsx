@@ -127,7 +127,7 @@ useEffect(() => {
         <HomeBack playAgain={playAgain} onGoHome={onGoHome} timeSpent={timeSpent} component={label}/>
         </>):(<>
     <div
-      className="h-full xl:h-[75vh] px-4 py-6 flex flex-col items-center bg-gradient-to-b from-blue-200 via-pink-100 to-yellow-100"
+      className="h-full xl:h-auto px-4 py-6 flex flex-col items-center bg-gradient-to-b from-blue-200 via-pink-100 to-yellow-100"
       style={{ backgroundSize: "cover" }}
     >
       {/* Controls */}

@@ -97,27 +97,27 @@ const initializeData = (jsonData: JsonData[]): Dataset => {
 };
 
 // ====================== Generate Synthetic Questions ======================
-const generateSyntheticQuestions = (wordList: VocabItem[]): any[] => {
-  return wordList.map((item) => ({
-    question: { question: `Complete the action: ____ Place any answer.` },
-    options: [item.word, ...shuffle(wordList.filter(w => w.word !== item.word)).slice(0, 2).map(w => w.word)],
-  }));
-}; 
+// const generateSyntheticQuestions = (wordList: VocabItem[]): any[] => {
+//   return wordList.map((item) => ({
+//     question: { question: `Complete the action: ____ Place any answer.` },
+//     options: [item.word, ...shuffle(wordList.filter(w => w.word !== item.word)).slice(0, 2).map(w => w.word)],
+//   }));
+// }; 
 
 
 // ====================== Build DND Overrides ======================
-const buildDNDOverrides = (jsonData: JsonData[]): Record<LevelKey, Record<string, { s: string; o: string[] }>> => {
-  const questions = jsonData[0]?.questions?.length > 0 ? jsonData[0].questions : generateSyntheticQuestions(jsonData[0]?.word_list || []);
-  return jsonData[0].categories.reduce((acc: Record<LevelKey, Record<string, { s: string; o: string[] }>>, cat: Category) => ({
-    ...acc,
-    [cat.name]: questions.reduce((qAcc: Record<string, { s: string; o: string[] }>, q: any) => {
-      const word = q.options.find((o: string) => jsonData[0].word_list.some((w: VocabItem) => w.word === o)) || '';
-      if (!word) return qAcc;
-      const options = q.options.length > 0 ? q.options : q.question.question.includes('option:') ? q.question.question.split('option:')[1].split(',').map((o: string) => o.trim()) : [];
-      return { ...qAcc, [word.toLowerCase()]: { s: q.question.question.replace('\\n', ' ').trim(), o: options } };
-    }, {} as Record<string, { s: string; o: string[] }>),
-  }), {} as Record<LevelKey, Record<string, { s: string; o: string[] }>>);
-};
+// const buildDNDOverrides = (jsonData: JsonData[]): Record<LevelKey, Record<string, { s: string; o: string[] }>> => {
+//   const questions = jsonData[0]?.questions?.length > 0 ? jsonData[0].questions : generateSyntheticQuestions(jsonData[0]?.word_list || []);
+//   return jsonData[0].categories.reduce((acc: Record<LevelKey, Record<string, { s: string; o: string[] }>>, cat: Category) => ({
+//     ...acc,
+//     [cat.name]: questions.reduce((qAcc: Record<string, { s: string; o: string[] }>, q: any) => {
+//       const word = q.options.find((o: string) => jsonData[0].word_list.some((w: VocabItem) => w.word === o)) || '';
+//       if (!word) return qAcc;
+//       const options = q.options.length > 0 ? q.options : q.question.question.includes('option:') ? q.question.question.split('option:')[1].split(',').map((o: string) => o.trim()) : [];
+//       return { ...qAcc, [word.toLowerCase()]: { s: q.question.question.replace('\\n', ' ').trim(), o: options } };
+//     }, {} as Record<string, { s: string; o: string[] }>),
+//   }), {} as Record<LevelKey, Record<string, { s: string; o: string[] }>>);
+// };
 
 // ====================== Translation Support ======================
 function langName(code: string | null, languages: { code: string; name: string }[]): string {
@@ -1289,17 +1289,17 @@ export default function VocabTool({ toolData }: VocabToolProps) {
             scrollbar-width: none;
           }
           @media (max-width: 640px) {
-            .card-container {
+            .card-container-voc {
               height: 50vh;
             }
           }
           @media (min-width: 641px) and (max-width: 768px) {
-            .card-container {
+            .card-container-voc {
               height: 50vh;
             }
           }
           @media (min-width: 769px) {
-            .card-container {
+            .card-container-voc {
               height: 50vh;
             }
           }
@@ -1454,7 +1454,7 @@ export default function VocabTool({ toolData }: VocabToolProps) {
 </button>
             </div>
           )}
-          <div className='relative card-container'>
+          <div className='relative card-container-voc'>
             {prev && (
               <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-[80vw] sm:w-[280px] md:w-[320px] h-[80%] sm:h-[85%] rounded-3xl ${COLORS.dim}`}>
                 <div className='w-full h-full rounded-3xl overflow-hidden'>

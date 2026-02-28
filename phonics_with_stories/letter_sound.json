@@ -210,47 +210,47 @@
             "audio": "https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/tw.mp3"
         },
         {
-            "lab": "a",
+            "lab": "short-a",
             "id": "short-a",
             "audio": "https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/short_vowel_a.mp3"
         },
         {
-            "lab": "e",
+            "lab": "short-e",
             "id": "short-e",
             "audio": "https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/short_vowel_e.mp3"
         },
         {
-            "lab": "i",
+            "lab": "short-i",
             "id": "short-i",
             "audio": "https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/short_vowel_i.mp3"
         },
         {
-            "lab": "o",
+            "lab": "short-o",
             "id": "short-o",
             "audio": "https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/short_vowel_o.mp3"
         },
         {
-            "lab": "u",
+            "lab": "short-u",
             "id": "short-u",
             "audio": "https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/short_vowel_u.mp3"
         },
         {
-            "lab": "a",
+            "lab": "long-a",
             "id": "long-a",
             "audio": "https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/long_vowel_a.mp3"
         },
         {
-            "lab": "i",
+            "lab": "long-i",
             "id": "long-i",
             "audio": "https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/long_vowel_i.mp3"
         },
         {
-            "lab": "o",
+            "lab": "long-o",
             "id": "long-o",
             "audio": "https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/long_vowel_o.mp3"
         },
         {
-            "lab": "u",
+            "lab": "long-u",
             "id": "long-u",
             "audio": "https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/long_vowel_u.mp3"
         },

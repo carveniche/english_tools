@@ -47,7 +47,7 @@ function StartTheRound() {
   const backendDataRef = useRef(null);
   const [levelId, setLevelId] = useState("");
   const level_data_id = useRef(levelId);
-  const BackgroundAUDIO =new Audio('/merry-go-audio.mp3')
+  const BackgroundAUDIO =new Audio('https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/merry-go-audio.mp3')
 
   useEffect(() => {
     level_data_id.current = levelId;
@@ -94,7 +94,8 @@ function StartTheRound() {
   }
 
   return (
-    <div className="w-full h-[calc(100vh-20vh)] border border-red-700 flex justify-center items-center">
+    <div className="w-full h-[calc(100vh-20vh)] border border-red-700 flex justify-center items-center bg-center bg-cover bg-no-repeat"
+    style={{backgroundImage:"url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/phonicsBgLeter.png)"}}>
       {openingTheGame ? (
         <AllLevel backendData={backendData} BgAudio={BackgroundAUDIO}/>
       ) : (

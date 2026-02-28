@@ -1,21 +1,115 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from "react";
 import HTMLFlipBook from "react-pageflip";
-import PhonicsLetterHearingPPage from './PhonicsLetterHearingPPage';
+import PhonicsLetterHearingPPage from "./PhonicsLetterHearingPPage";
+import MainStoryBook from "./MainStoryBook";
+      const story_data = [
+    {
+      status: true,
+      message: "First Flip Word for this student",
+      data: [
+        {
+          id: 1,
+          title: "Sam and the Cap",
+          phonics_letter:"z",
+          thumbnail_image: "https://d3g74fig38xwgn.cloudfront.net/english_game/phonics-stories/st_01/sam01.png",
+          daily_limit: false,
+          story_pages: [
+            {
+              image: "https://picsum.photos/seed/cap/1200/1200",
+              line: "Sam has a red cap",
+              target_word: "cap",
+              phonemes: ["k", "a", "p"],
+            },
+            {
+                "image": "https://picsum.photos/seed/mat/1200/1200",
+                "line": "The cat sits on the mat",
+                "target_word": "mat",
+                "phonemes": [
+                    "m",
+                    "a",
+                    "t"
+                ]
+            },
+            {
+                "image": "https://picsum.photos/seed/pat/1200/1200",
+                "line": "Sam can pat the cat",
+                "targetWord": "pat",
+                "phonemes": [
+                    "/p/",
+                    "/a/",
+                    "/t/"
+                ]
+            },
+            {
+                "image": "https://picsum.photos/seed/fan/1200/1200",
+                "line": "A fan spins by the mat",
+                "targetWord": "fan",
+                "phonemes": [
+                    "/f/",
+                    "/a/",
+                    "/n/"
+                ]
+            }
+          ],
+          quiz_questions: [
+            {
+                "question_type": "horizontal ordering",
+                "words": [
+                    "c",
+                    "a",
+                    "p"
+                ],
+                "answer": "cap",
+                "audio": "",
+                "image": "https://picsum.photos/seed/fan2/1200/1200"
+            },
+            {
+                "question_type": "multiple choice",
+                "words": [
+                    "fan",
+                    "pat"
+                ],
+                "answer": "fan",
+                "audio": "",
+                "image": "https://picsum.photos/seed/fan2/1200/1200"
+            },
+            {
+              question_type: "fill in the blanks",
+              question_words: ["m", "a", ""],
+              option_words: ["p", "d", "t"],
+              answer: "t",
+              image: "https://picsum.photos/seed/fan2/1200/1200",
+            },
+          ],
+        },
+      ],
+    },
+  ];
+function Book({ backend_data,onFinishCorrect ,timespent }) {
+  // console.log(timespent,"timespent")
+  const [phonicsLetter, setPhonicsLetter] = useState(null);
+  const [phonicsData, setPhonicsData] = useState(null);
+  const [showNextStoryBtn, setShowNextStoryBtn] = useState(false);
 
-function Book({backend_data}) {
-const [phonicsLetter, setPhonicsLetter] = useState(null);
-  
+
+  const [showStoryBookPage, setShowStoryBookPage] = useState(false);
+ 
   useEffect(() => {
-    if (backend_data?.phonics_letter_word) {
-      setPhonicsLetter(backend_data?.phonics_letter_word);
+    if (backend_data) {
+      if (backend_data?.phonics_letter) {
+        setPhonicsLetter(backend_data?.phonics_letter);
+      }
+      setPhonicsData(backend_data);
     }
   }, [backend_data]);
 
-  console.log(backend_data.phonics_letter_word)
+  // console.log(backend_data.phonics_letter);
+
+
 
   return (
-    // <HTMLFlipBook 
-    //   width={370} 
+    // <HTMLFlipBook
+    //   width={370}
     //   height={500}
     //   maxShadowOpacity={0.5}
     //   drawShadow={true}
@@ -24,13 +118,51 @@ const [phonicsLetter, setPhonicsLetter] = useState(null);
     // >
 
     // </HTMLFlipBook>
-    <div  className='w-full h-full border border-red-900 flex justify-center items-center'>
-        <PhonicsLetterHearingPPage backendLetter={phonicsLetter}/>
+    <div className="relative w-full h-full  flex justify-center items-center overflow-hidden">
+      <div
+        className={`transition-all duration-700 ease-in-out transform
+        ${
+          showStoryBookPage
+            ? "translate-x-0 opacity-100"
+            : "translate-x-full opacity-0"
+        }
+        absolute w-full h-full`}
+      >
+        <MainStoryBook
+  phonicsData={phonicsData}
+  timespent={timespent}
+   onCorrect={() => {
+            onFinishCorrect(); // notify parent
+          }}
+            onFinishQuiz={() => {
+    onFinishCorrect(); 
+  }}
+/>
+
+      </div>
+
+      <div
+        className={`transition-all duration-700 ease-in-out transform
+        ${
+          showStoryBookPage
+            ? "-translate-x-full opacity-0"
+            : "translate-x-0 opacity-100"
+        }
+        absolute w-full h-full`}
+      >
+        
+        <PhonicsLetterHearingPPage
+          backendLetter={phonicsLetter}
+          onStartStory={() => setShowStoryBookPage(true)}
+        />
+      </div>
+    
+
     </div>
   );
 }
 
-export default Book
+export default Book;
 
 //   const pokemonData = [
 //     {
@@ -77,7 +209,8 @@ export default Book
 //     }
 //   ];
 
-      {/* <div className="page" style={{ background: 'transparent' }}>
+{
+  /* <div className="page" style={{ background: 'transparent' }}>
         <div className="page-content cover">
           <img 
             src="https://upload.wikimedia.org/wikipedia/commons/9/98/International_Pok%C3%A9mon_logo.svg" 
@@ -85,9 +218,11 @@ export default Book
             className="pokemon-logo"
           />
         </div>
-      </div> */}
+      </div> */
+}
 
-      {/* {pokemonData.map((pokemon) => (
+{
+  /* {pokemonData.map((pokemon) => (
         <div className="page" key={pokemon.id}>
           <div className="page-content">
             <div className="pokemon-container">
@@ -110,4 +245,5 @@ export default Book
             </div>
           </div>
         </div>
-      ))} */}
+      ))} */
+}

@@ -22,7 +22,7 @@ function LevelOne({ data, onFinish }) {
   };
 
   const speakAnswer = () => {
-    const audio = new Audio("/tabTheWord.mp3");
+    const audio = new Audio("https://d3g74fig38xwgn.cloudfront.net/sound_wall/sounds/tabTheWord.mp3");
     audio.play();
   };
 
@@ -109,8 +109,8 @@ const settings = {
 
   return (
     <div
-      className="w-full h-full flex justify-center items-center bg-no-repeat bg-contain bg-center"
-      style={{ backgroundImage: "url(/levelonemerry.png)" }}
+      className="relative w-[80%] h-full flex justify-center items-center bg-no-repeat bg-contain bg-center border border-green-800"
+      style={{ backgroundImage: "url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/levelonemerry.png)" }}
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
@@ -118,12 +118,19 @@ const settings = {
         style={styles.container}
       >
         {/* Header */}
-        <div style={styles.header}>
+        <div className="absolute border border-black top-0 left-0 flex justify-center items-center p-[1rem]">
+          <div className=" border border-green-700 flex justify-start items-center gap-[1rem]">
+               <img src="https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/listenspeaker.png" alt="speaker" className="w-[3rem] cursor-pointer" onClick={speakAnswer} />
+                <h2 className="text-[1.5rem] font-bold text-[#ffffff]">Find the correct word</h2>
+          </div>
+
+        </div>
+        {/* <div style={styles.header}>
           <div style={styles.speaker} onClick={speakAnswer}>🔊</div>
           <div style={styles.attempts}>{"❤️".repeat(attemptsLeft)}</div>
-        </div>
+        </div> */}
 
-        <h2 style={styles.title}>Find the correct word</h2>
+        {/* <h2 style={styles.title}>Find the correct word</h2> */}
 
         {/* 🎠 Carousel */}
         <div style={{ marginTop: 40 }}>
@@ -138,7 +145,7 @@ const settings = {
                     onClick={() => handleClick(word)}
                     style={{
                       ...styles.wordCard,
-                      backgroundImage: "url(/carosel.png)",
+                      backgroundImage: "url(https://d3g74fig38xwgn.cloudfront.net/sound_wall/images/carosel.png)",
                       cursor: "pointer",
                       overflow: "hidden"
                     }}
